@@ -1,0 +1,741 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>My Account — DTC</title>
+
+<!-- PWA -->
+<link rel="manifest" href="/manifest.json"/>
+<meta name="theme-color" content="#2563eb"/>
+<meta name="mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+<meta name="apple-mobile-web-app-title" content="DTC"/>
+<link rel="apple-touch-icon" href="/icons/icon.svg"/>
+
+<!-- SEO / Social -->
+<meta name="description" content="View and manage your DTC subscription — Claude Pro and ChatGPT Plus."/>
+<meta property="og:title" content="DTC — Digital Tools Corner"/>
+<meta property="og:description" content="Your Claude Pro and ChatGPT Plus subscription portal."/>
+<meta property="og:type" content="website"/>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#080c18;
+  --surface:#0f1623;
+  --surface2:#161e2e;
+  --surface3:#1c2539;
+  --border:rgba(255,255,255,.07);
+  --border2:rgba(255,255,255,.12);
+  --text:#e8eeff;
+  --muted:#6b7a99;
+  --muted2:#3d4a62;
+  --blue:#5b9cf6;
+  --blue-glow:rgba(91,156,246,.2);
+  --blue-dim:rgba(91,156,246,.1);
+  --green:#2dd4bf;
+  --green-bg:rgba(45,212,191,.08);
+  --green-border:rgba(45,212,191,.2);
+  --amber:#f59e0b;
+  --amber-bg:rgba(245,158,11,.08);
+  --amber-border:rgba(245,158,11,.2);
+  --red:#fb7185;
+  --red-bg:rgba(251,113,133,.08);
+  --red-border:rgba(251,113,133,.2);
+  --purple:#c084fc;
+  --purple-bg:rgba(192,132,252,.08);
+  --purple-border:rgba(192,132,252,.2);
+  --mono:'DM Mono',monospace;
+  --sans:'DM Sans',sans-serif;
+  --r:12px;
+  --r-lg:18px;
+}
+
+body{font-family:var(--sans);background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;-webkit-font-smoothing:antialiased}
+
+/* ─── PWA Install Banner ─── */
+.pwa-banner{position:fixed;bottom:0;left:0;right:0;z-index:200;padding:.85rem 1.2rem;background:rgba(15,22,35,.97);border-top:1px solid rgba(91,156,246,.2);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);display:flex;align-items:center;gap:.9rem;transform:translateY(100%);transition:transform .35s cubic-bezier(.4,0,.2,1)}
+.pwa-banner.show{transform:translateY(0)}
+.pwa-banner-icon{width:44px;height:44px;border-radius:10px;background:#2563eb;display:flex;align-items:center;justify-content:center;font-size:.82rem;font-weight:700;color:#fff;font-family:var(--mono);flex-shrink:0;letter-spacing:-.02em}
+.pwa-banner-text{flex:1;min-width:0}
+.pwa-banner-title{font-size:.82rem;font-weight:600;color:var(--text);margin-bottom:.1rem}
+.pwa-banner-sub{font-size:.72rem;color:var(--muted);line-height:1.4}
+.pwa-banner-actions{display:flex;align-items:center;gap:.5rem;flex-shrink:0}
+.pwa-install-btn{background:var(--blue);color:#fff;border:none;border-radius:8px;padding:.42rem .9rem;font-size:.78rem;font-weight:600;cursor:pointer;font-family:var(--sans);transition:all .17s;white-space:nowrap}
+.pwa-install-btn:hover{background:#4a8ef0;transform:translateY(-1px)}
+.pwa-dismiss-btn{background:none;border:1px solid rgba(255,255,255,.12);border-radius:8px;padding:.4rem .7rem;font-size:.78rem;color:var(--muted);cursor:pointer;font-family:var(--sans)}
+.pwa-dismiss-btn:hover{border-color:rgba(255,255,255,.22);color:var(--text)}
+
+/* iOS install hint */
+.ios-hint{position:fixed;bottom:70px;left:50%;transform:translateX(-50%) translateY(20px);z-index:201;background:rgba(15,22,35,.97);border:1px solid rgba(91,156,246,.25);border-radius:12px;padding:.85rem 1.1rem;width:min(340px,90vw);text-align:center;opacity:0;transition:all .3s ease;pointer-events:none}
+.ios-hint.show{opacity:1;transform:translateX(-50%) translateY(0);pointer-events:auto}
+.ios-hint::after{content:'';position:absolute;bottom:-8px;left:50%;transform:translateX(-50%);width:14px;height:8px;background:rgba(15,22,35,.97);clip-path:polygon(0 0,100% 0,50% 100%);border-right:1px solid rgba(91,156,246,.25);border-bottom:1px solid rgba(91,156,246,.25)}
+.ios-hint-title{font-size:.8rem;font-weight:600;color:var(--text);margin-bottom:.4rem}
+.ios-hint-step{font-size:.74rem;color:var(--muted);line-height:1.6}
+.ios-hint-close{position:absolute;top:.4rem;right:.6rem;background:none;border:none;color:var(--muted);cursor:pointer;font-size:.9rem;font-family:var(--sans)}
+
+/* Installed toast */
+.installed-toast{position:fixed;top:1rem;left:50%;transform:translateX(-50%) translateY(-80px);z-index:300;background:rgba(45,212,191,.12);border:1px solid rgba(45,212,191,.25);border-radius:10px;padding:.65rem 1.1rem;font-size:.8rem;color:var(--green);display:flex;align-items:center;gap:.5rem;transition:transform .35s cubic-bezier(.4,0,.2,1);white-space:nowrap}
+.installed-toast.show{transform:translateX(-50%) translateY(0)}
+
+/* Ambient background */
+body::before{content:'';position:fixed;inset:0;background:
+  radial-gradient(ellipse 70% 45% at 50% -5%,rgba(91,156,246,.11) 0%,transparent 55%),
+  radial-gradient(ellipse 40% 30% at 85% 80%,rgba(45,212,191,.06) 0%,transparent 50%),
+  radial-gradient(ellipse 30% 25% at 10% 70%,rgba(192,132,252,.05) 0%,transparent 50%);
+pointer-events:none;z-index:0}
+
+/* ─── Nav ─── */
+.nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:.8rem 1.5rem;background:rgba(8,12,24,.8);backdrop-filter:blur(20px);border-bottom:1px solid var(--border)}
+.nav-brand{display:flex;align-items:center;gap:.55rem;text-decoration:none}
+.nav-icon{width:30px;height:30px;background:var(--blue);border-radius:7px;display:flex;align-items:center;justify-content:center;box-shadow:0 0 20px rgba(91,156,246,.35)}
+.nav-icon svg{width:16px;height:16px}
+.nav-title{font-size:.88rem;font-weight:600;color:var(--text);letter-spacing:-.02em}
+.nav-title em{color:var(--blue);font-style:normal}
+.nav-right{display:flex;align-items:center;gap:.6rem}
+.nav-pill{display:none;align-items:center;gap:.45rem;background:var(--surface2);border:1px solid var(--border);border-radius:99px;padding:.25rem .7rem .25rem .35rem;font-size:.75rem;color:var(--muted)}
+.nav-avatar{width:22px;height:22px;border-radius:50%;background:var(--blue-dim);border:1px solid rgba(91,156,246,.35);display:flex;align-items:center;justify-content:center;font-size:.6rem;font-weight:600;color:var(--blue);flex-shrink:0;font-family:var(--mono)}
+.nav-btn{background:var(--blue-dim);border:1px solid rgba(91,156,246,.25);color:var(--blue);border-radius:8px;padding:.38rem .85rem;font-family:var(--sans);font-size:.78rem;font-weight:500;cursor:pointer;transition:all .18s}
+.nav-btn:hover{background:var(--blue-glow);border-color:rgba(91,156,246,.45)}
+.nav-btn.ghost{background:transparent;border-color:var(--border);color:var(--muted);display:none}
+.nav-btn.ghost:hover{border-color:var(--border2);color:var(--text)}
+
+/* ─── Layout ─── */
+.page{position:relative;z-index:1;padding-top:4rem;min-height:100vh}
+
+/* ─── Login section ─── */
+#s-login{display:flex;align-items:center;justify-content:center;min-height:calc(100vh - 4rem);padding:2rem 1rem}
+.login-wrap{width:100%;max-width:400px;animation:fadeUp .45s ease}
+.login-badge{display:inline-flex;align-items:center;gap:.4rem;background:var(--blue-dim);border:1px solid rgba(91,156,246,.2);border-radius:99px;padding:.3rem .9rem;font-size:.72rem;color:var(--blue);font-weight:500;margin-bottom:1.4rem}
+.login-title{font-size:1.8rem;font-weight:600;letter-spacing:-.04em;line-height:1.15;margin-bottom:.7rem}
+.login-title span{color:var(--blue)}
+.login-sub{font-size:.85rem;color:var(--muted);line-height:1.7;margin-bottom:2rem}
+
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);padding:1.6rem}
+
+.f-label{display:block;font-size:.67rem;font-weight:500;color:var(--muted);margin-bottom:.4rem;text-transform:uppercase;letter-spacing:.09em}
+.f-input{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:var(--r);padding:.78rem 1rem;font-family:var(--sans);font-size:.9rem;color:var(--text);outline:none;transition:all .18s}
+.f-input::placeholder{color:var(--muted2)}
+.f-input:focus{border-color:rgba(91,156,246,.45);box-shadow:0 0 0 3px rgba(91,156,246,.1)}
+.f-input.shake{animation:shake .35s ease}
+
+.btn-main{display:flex;align-items:center;justify-content:center;gap:.4rem;width:100%;background:var(--blue);color:#fff;border:none;border-radius:var(--r);padding:.82rem;font-family:var(--sans);font-size:.9rem;font-weight:600;cursor:pointer;transition:all .2s;margin-top:1rem;letter-spacing:-.01em}
+.btn-main:hover:not(:disabled){background:#74adf8;transform:translateY(-1px);box-shadow:0 8px 28px rgba(91,156,246,.3)}
+.btn-main:disabled{opacity:.45;cursor:not-allowed;transform:none}
+.btn-main .ld{width:16px;height:16px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .6s linear infinite;display:none}
+.btn-main.loading span{display:none}.btn-main.loading .ld{display:block}
+.err-line{font-size:.76rem;color:var(--red);margin-top:.65rem;text-align:center;min-height:1.1rem;transition:opacity .2s}
+
+/* ─── Portal section ─── */
+#s-portal{display:none}
+.portal-wrap{max-width:700px;margin:0 auto;padding:2rem 1rem 6rem}
+
+.hello-bar{display:flex;align-items:center;justify-content:space-between;gap:1rem;margin-bottom:2rem;flex-wrap:wrap}
+.hello-name{font-size:1.35rem;font-weight:600;letter-spacing:-.03em}
+.hello-name span{color:var(--blue)}
+.hello-meta{font-size:.78rem;color:var(--muted);margin-top:.2rem}
+.sub-badge{background:var(--surface2);border:1px solid var(--border);border-radius:99px;padding:.28rem .8rem;font-size:.72rem;color:var(--muted);white-space:nowrap}
+
+.list-label{font-size:.63rem;font-weight:600;text-transform:uppercase;letter-spacing:.13em;color:var(--muted2);margin-bottom:.85rem}
+
+/* ─── Subscription card ─── */
+.sub-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);margin-bottom:.85rem;overflow:hidden;transition:border-color .2s,transform .15s}
+.sub-card:hover{transform:translateY(-1px)}
+.sub-card.c-active  {border-color:rgba(45,212,191,.18)}
+.sub-card.c-expiring{border-color:rgba(245,158,11,.22)}
+.sub-card.c-expired {border-color:rgba(251,113,133,.15)}
+.sub-card.c-proc    {border-color:rgba(91,156,246,.18)}
+.sub-card.c-declined{border-color:rgba(251,113,133,.12)}
+
+/* Card top strip */
+.card-strip{height:3px;width:100%}
+.strip-active  {background:linear-gradient(90deg,var(--green),rgba(45,212,191,.3))}
+.strip-expiring{background:linear-gradient(90deg,var(--amber),rgba(245,158,11,.3))}
+.strip-expired {background:linear-gradient(90deg,var(--red),rgba(251,113,133,.3))}
+.strip-proc    {background:linear-gradient(90deg,var(--blue),rgba(91,156,246,.3))}
+.strip-declined{background:linear-gradient(90deg,var(--red),rgba(251,113,133,.3))}
+
+/* Header row */
+.card-head{display:flex;align-items:flex-start;justify-content:space-between;padding:1.1rem 1.3rem .8rem;gap:.8rem}
+.card-product{font-size:.82rem;font-weight:600;display:flex;align-items:center;gap:.45rem}
+.card-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+.card-pkg{font-size:.75rem;color:var(--muted);margin-top:.2rem}
+
+.s-pill{display:inline-flex;align-items:center;gap:.3rem;padding:.25rem .7rem;border-radius:99px;font-size:.69rem;font-weight:600;flex-shrink:0;white-space:nowrap}
+.sp-active  {background:var(--green-bg);border:1px solid var(--green-border);color:var(--green)}
+.sp-expiring{background:var(--amber-bg);border:1px solid var(--amber-border);color:var(--amber)}
+.sp-expired {background:var(--red-bg);border:1px solid var(--red-border);color:var(--red)}
+.sp-proc    {background:var(--blue-dim);border:1px solid rgba(91,156,246,.2);color:var(--blue)}
+.sp-declined{background:var(--red-bg);border:1px solid var(--red-border);color:var(--red)}
+.pill-dot{width:4px;height:4px;border-radius:50%;background:currentColor}
+.pill-dot.blink{animation:blink 1.6s ease infinite}
+
+/* Live ticker */
+.ticker-wrap{padding:0 1.3rem .5rem;display:flex;gap:.5rem;flex-wrap:wrap;align-items:center}
+.ticker-tile{display:flex;flex-direction:column;align-items:center;min-width:44px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:.45rem .5rem}
+.ticker-num{font-size:1.1rem;font-weight:600;font-family:var(--mono);color:var(--text);line-height:1;min-width:2ch;text-align:center}
+.ticker-unit{font-size:.55rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted2);margin-top:.2rem;font-weight:500}
+.ticker-sep{font-size:1rem;color:var(--muted2);font-weight:300;margin-bottom:.6rem}
+.ticker-expired{font-size:.82rem;font-weight:600;color:var(--red);padding:.1rem 0 .6rem;display:flex;align-items:center;gap:.4rem}
+
+/* Progress bar */
+.prog-wrap{padding:0 1.3rem .9rem}
+.prog-row{display:flex;justify-content:space-between;font-size:.67rem;color:var(--muted);margin-bottom:.4rem}
+.prog-track{height:4px;background:rgba(255,255,255,.05);border-radius:2px;overflow:hidden}
+.prog-fill{height:100%;border-radius:2px;transition:width .6s ease}
+.prog-fill.green{background:var(--green)}
+.prog-fill.amber{background:var(--amber)}
+.prog-fill.red  {background:var(--red)}
+.prog-dates{display:flex;justify-content:space-between;font-size:.63rem;color:var(--muted2);font-family:var(--mono);margin-top:.35rem}
+
+/* Details grid */
+.detail-grid{border-top:1px solid var(--border);display:grid;grid-template-columns:1fr 1fr}
+.d-cell{padding:.75rem 1.3rem;border-right:1px solid var(--border);border-bottom:1px solid var(--border)}
+.d-cell:nth-child(even){border-right:none}
+.d-cell:nth-last-child(-n+2){border-bottom:none}
+@media(max-width:480px){.detail-grid{grid-template-columns:1fr}.d-cell{border-right:none}.d-cell:last-child{border-bottom:none}}
+.d-label{font-size:.6rem;text-transform:uppercase;letter-spacing:.09em;color:var(--muted2);margin-bottom:.22rem;font-weight:500}
+.d-val{font-size:.76rem;color:var(--text);font-family:var(--mono)}
+.d-val.green{color:var(--green)}.d-val.amber{color:var(--amber)}.d-val.red{color:var(--red)}.d-val.muted{color:var(--muted)}
+
+/* Payment receipt */
+.pay-section{border-top:1px solid var(--border);padding:1rem 1.3rem;background:rgba(255,255,255,.012)}
+.pay-label{font-size:.6rem;text-transform:uppercase;letter-spacing:.1em;color:var(--muted2);margin-bottom:.7rem;font-weight:600;display:flex;align-items:center;gap:.4rem}
+.pay-row{display:flex;justify-content:space-between;align-items:baseline;font-size:.76rem;padding:.18rem 0;gap:.8rem}
+.pay-row .pk{color:var(--muted);font-family:var(--sans)}
+.pay-row .pv{font-family:var(--mono);color:var(--text)}
+.pay-divider{border:none;border-top:1px solid var(--border);margin:.45rem 0}
+.pay-total{display:flex;justify-content:space-between;align-items:baseline;font-size:.82rem;font-weight:600;gap:.8rem;padding-top:.1rem}
+.pay-total .pk{color:var(--text)}
+.pay-total .pv{color:var(--green);font-family:var(--mono)}
+.pay-total .pv.purple{color:var(--purple)}
+.method-row{display:flex;align-items:center;gap:.5rem;font-size:.74rem;color:var(--muted);margin-top:.55rem;padding-top:.55rem;border-top:1px solid var(--border)}
+.method-icon{font-size:.85rem}
+.pay-ref{font-size:.68rem;color:var(--muted2);font-family:var(--mono);margin-top:.2rem}
+.discount-tag{display:inline-flex;align-items:center;background:var(--amber-bg);border:1px solid var(--amber-border);border-radius:4px;padding:.06rem .35rem;font-size:.64rem;color:var(--amber);font-weight:600;font-family:var(--sans);margin-left:.3rem;vertical-align:middle}
+.custom-tag{display:inline-flex;align-items:center;background:var(--blue-dim);border:1px solid rgba(91,156,246,.2);border-radius:4px;padding:.06rem .35rem;font-size:.64rem;color:var(--blue);font-family:var(--sans);margin-left:.3rem;vertical-align:middle}
+
+/* Processing / declined blocks */
+.proc-block{padding:1.1rem 1.3rem;border-top:1px solid var(--border);text-align:center}
+.proc-icon{font-size:1.3rem;margin-bottom:.4rem}
+.proc-text{font-size:.8rem;color:var(--muted);line-height:1.65}
+.declined-block{padding:.85rem 1.3rem;border-top:1px solid var(--red-border);background:var(--red-bg);font-size:.78rem;color:var(--red);line-height:1.6}
+
+/* Renew CTA */
+.renew-block{margin:0 1.3rem .9rem;padding:.9rem 1.1rem;background:var(--amber-bg);border:1px solid var(--amber-border);border-radius:var(--r);display:flex;align-items:center;justify-content:space-between;gap:.8rem;flex-wrap:wrap}
+.renew-text{font-size:.78rem;color:var(--amber);line-height:1.5}
+.renew-text strong{display:block;font-size:.82rem;margin-bottom:.1rem}
+.renew-btn{background:var(--amber);color:#1a1000;border:none;border-radius:8px;padding:.4rem .9rem;font-family:var(--sans);font-size:.75rem;font-weight:700;cursor:pointer;white-space:nowrap;text-decoration:none;display:inline-block;transition:all .15s}
+.renew-btn:hover{background:#fbbf24;transform:translateY(-1px)}
+
+/* Empty / spinner */
+.empty{text-align:center;padding:4rem 1rem;color:var(--muted)}
+.empty-ico{font-size:2.2rem;margin-bottom:.8rem;opacity:.35}
+.empty-txt{font-size:.85rem}
+.spin-wrap{display:flex;align-items:center;justify-content:center;padding:4rem}
+.spinner{width:26px;height:26px;border:2px solid var(--border);border-top-color:var(--blue);border-radius:50%;animation:spin .65s linear infinite}
+
+/* Footer */
+.portal-footer{text-align:center;margin-top:2rem;font-size:.7rem;color:var(--muted2)}
+.portal-footer a{color:var(--muted2);text-decoration:none}
+.portal-footer a:hover{color:var(--blue)}
+
+/* ─── Animations ─── */
+@keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+@keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-6px)}40%{transform:translateX(6px)}60%{transform:translateX(-4px)}80%{transform:translateX(4px)}}
+.fade-in{animation:fadeUp .4s ease both}
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <a class="nav-brand" href="/">
+    <div class="nav-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
+      </svg>
+    </div>
+    <div class="nav-title">DTC <em>Portal</em></div>
+  </a>
+  <div class="nav-right">
+    <div class="nav-pill" id="nav-pill">
+      <div class="nav-avatar" id="nav-avatar"></div>
+      <span id="nav-email"></span>
+    </div>
+    <button class="nav-btn ghost" id="nav-logout" onclick="logout()">Sign out</button>
+  </div>
+</nav>
+
+<div class="page">
+
+  <!-- LOGIN -->
+  <div id="s-login">
+    <div class="login-wrap">
+      <div class="login-badge">🔐 Secure Customer Portal</div>
+      <h1 class="login-title">Your <span>subscriptions</span>,<br>all in one place.</h1>
+      <p class="login-sub">Enter the email you used when registering to see your active subscriptions, payment history and renewal status.</p>
+      <div class="card">
+        <label class="f-label" for="le">Email address</label>
+        <input class="f-input" type="email" id="le" placeholder="you@example.com" autocomplete="email"
+          onkeydown="if(event.key==='Enter')login()"/>
+        <button class="btn-main" id="lb" onclick="login()">
+          <span>View My Account →</span>
+          <div class="ld"></div>
+        </button>
+        <div class="err-line" id="lerr"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PORTAL -->
+  <div id="s-portal">
+    <div class="portal-wrap">
+      <div class="hello-bar">
+        <div>
+          <div class="hello-name" id="ph-name">Hello <span>there</span> 👋</div>
+          <div class="hello-meta" id="ph-meta"></div>
+        </div>
+        <div class="sub-badge" id="ph-badge">—</div>
+      </div>
+
+      <div class="list-label">Subscriptions &amp; Payment History</div>
+      <div id="rec-wrap"><div class="spin-wrap"><div class="spinner"></div></div></div>
+
+      <div class="portal-footer">
+        DTC — Digital Tools Corner &nbsp;·&nbsp;
+        <a href="mailto:dtc@dtc1.shop">dtc@dtc1.shop</a>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+'use strict';
+
+/* ── helpers ── */
+const esc = s => String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+const fmtD = iso => iso ? new Date(iso).toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'}) : '—';
+const fmtLong = iso => iso ? new Date(iso).toLocaleDateString('en-GB',{day:'2-digit',month:'long',year:'numeric'}) : '—';
+const pad = n => String(n).padStart(2,'0');
+
+/* ── state ── */
+let _recs = [], _name = '', _email = '';
+const _tickers = {}; // token → intervalId
+
+/* ── login ── */
+async function login() {
+  const email = document.getElementById('le').value.trim();
+  const errEl = document.getElementById('lerr');
+  const btn   = document.getElementById('lb');
+  errEl.textContent = '';
+
+  if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    errEl.textContent = 'Please enter a valid email address.';
+    document.getElementById('le').classList.add('shake');
+    setTimeout(() => document.getElementById('le').classList.remove('shake'), 400);
+    return;
+  }
+
+  btn.classList.add('loading'); btn.disabled = true;
+
+  try {
+    const r = await fetch('/api/customer/login', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ email }),
+    });
+    const d = await r.json();
+    if (!r.ok || d.error) {
+      errEl.textContent = d.error || 'No account found for this email.';
+      btn.classList.remove('loading'); btn.disabled = false;
+      return;
+    }
+    _recs  = d.records;
+    _name  = d.name;
+    _email = email;
+    showPortal();
+  } catch {
+    errEl.textContent = 'Network error — please try again.';
+    btn.classList.remove('loading'); btn.disabled = false;
+  }
+}
+
+/* ── show portal ── */
+function showPortal() {
+  document.getElementById('s-login').style.display  = 'none';
+  document.getElementById('s-portal').style.display = 'block';
+  document.getElementById('nav-pill').style.display  = 'flex';
+  document.getElementById('nav-logout').style.display = '';
+
+  const initials = _name.trim().split(/\s+/).map(w=>w[0]).join('').slice(0,2).toUpperCase();
+  document.getElementById('nav-avatar').textContent = initials;
+  document.getElementById('nav-email').textContent  = _email;
+
+  const first = _name.split(' ')[0];
+  document.getElementById('ph-name').innerHTML = `Hello, <span>${esc(first)}</span> 👋`;
+  document.getElementById('ph-meta').textContent = _email;
+  const n = _recs.length;
+  document.getElementById('ph-badge').textContent = n + ' subscription' + (n !== 1 ? 's' : '');
+
+  renderAll();
+}
+
+/* ── logout ── */
+function logout() {
+  Object.values(_tickers).forEach(clearInterval);
+  Object.keys(_tickers).forEach(k => delete _tickers[k]);
+  _recs = []; _name = ''; _email = '';
+  document.getElementById('s-login').style.display  = '';
+  document.getElementById('s-portal').style.display = 'none';
+  document.getElementById('nav-pill').style.display  = 'none';
+  document.getElementById('nav-logout').style.display = 'none';
+  document.getElementById('le').value = '';
+  document.getElementById('lb').classList.remove('loading');
+  document.getElementById('lb').disabled = false;
+  document.getElementById('lerr').textContent = '';
+  document.getElementById('rec-wrap').innerHTML = '<div class="spin-wrap"><div class="spinner"></div></div>';
+}
+
+/* ── render all cards ── */
+function renderAll() {
+  const wrap = document.getElementById('rec-wrap');
+  if (!_recs.length) {
+    wrap.innerHTML = `<div class="empty"><div class="empty-ico">📭</div><div class="empty-txt">No records found for this email.</div></div>`;
+    return;
+  }
+  wrap.innerHTML = _recs.map((r,i) => buildCard(r, i)).join('');
+  // Start tickers for active subs
+  _recs.forEach(r => { if (r.status === 'active' && r.subscriptionExpiresAt) startTicker(r); });
+}
+
+/* ── determine sub state ── */
+function subState(r) {
+  if (r.status === 'processing') return 'proc';
+  if (r.status === 'declined')   return 'declined';
+  if (!r.subscriptionExpiresAt)  return 'active';
+  const daysLeft = Math.ceil((new Date(r.subscriptionExpiresAt) - new Date()) / (86400000));
+  if (daysLeft < 0)  return 'expired';
+  if (daysLeft <= 7) return 'expiring';
+  return 'active';
+}
+
+/* ── build card HTML ── */
+function buildCard(r, idx) {
+  const st  = subState(r);
+  const sym = r.currencySymbol || '$';
+
+  const stripClass  = {active:'strip-active', expiring:'strip-expiring', expired:'strip-expired', proc:'strip-proc', declined:'strip-declined'}[st];
+  const cardClass   = {active:'c-active', expiring:'c-expiring', expired:'c-expired', proc:'c-proc', declined:'c-declined'}[st];
+  const pillClass   = {active:'sp-active', expiring:'sp-expiring', expired:'sp-expired', proc:'sp-proc', declined:'sp-declined'}[st];
+  const pillLabels  = {active:'● Active', expiring:'⚡ Expiring Soon', expired:'⊘ Expired', proc:'● Processing', declined:'✕ Declined'};
+  const dotCls      = (st === 'active' || st === 'proc') ? ' blink' : '';
+  const dotColor    = {active:'var(--green)', expiring:'var(--amber)', expired:'var(--red)', proc:'var(--blue)', declined:'var(--red)'}[st];
+
+  /* progress bar */
+  let progHtml = '';
+  if ((st === 'active' || st === 'expiring') && r.subscriptionExpiresAt) {
+    const now      = new Date();
+    const exp      = new Date(r.subscriptionExpiresAt);
+    const daysLeft = Math.max(0, Math.ceil((exp - now) / 86400000));
+    const total    = r.durationDays || 30;
+    const pct      = Math.min(100, Math.max(0, daysLeft / total * 100)).toFixed(1);
+    const fillCls  = st === 'expiring' ? 'amber' : 'green';
+    progHtml = `
+      <div class="prog-wrap">
+        <div class="prog-row"><span>${daysLeft} day${daysLeft!==1?'s':''} remaining</span><span>${pct}%</span></div>
+        <div class="prog-track"><div class="prog-fill ${fillCls}" style="width:${pct}%"></div></div>
+        <div class="prog-dates"><span>Started ${fmtD(r.approvedAt)}</span><span>Expires ${fmtD(r.subscriptionExpiresAt)}</span></div>
+      </div>`;
+  }
+  if (st === 'expired' && r.subscriptionExpiresAt) {
+    const daysAgo = Math.ceil((new Date() - new Date(r.subscriptionExpiresAt)) / 86400000);
+    progHtml = `
+      <div class="prog-wrap">
+        <div class="prog-row" style="color:var(--red)"><span>Expired ${daysAgo} day${daysAgo!==1?'s':''} ago</span></div>
+        <div class="prog-track"><div class="prog-fill red" style="width:0%"></div></div>
+        <div class="prog-dates"><span>Started ${fmtD(r.approvedAt)}</span><span>Ended ${fmtD(r.subscriptionExpiresAt)}</span></div>
+      </div>`;
+  }
+
+  /* ticker placeholder — JS fills it in */
+  let tickerHtml = '';
+  if ((st === 'active' || st === 'expiring') && r.subscriptionExpiresAt) {
+    tickerHtml = `<div class="ticker-wrap" id="tick-${r.token}"><div class="spinner" style="width:16px;height:16px;margin:.3rem 0 .8rem"></div></div>`;
+  }
+  if (st === 'expired') {
+    tickerHtml = `<div class="ticker-wrap"><div class="ticker-expired">⏱ Subscription ended</div></div>`;
+  }
+
+  /* detail cells */
+  let detailsHtml = '';
+  if (st === 'active' || st === 'expiring') {
+    const daysLeft = Math.max(0, Math.ceil((new Date(r.subscriptionExpiresAt) - new Date()) / 86400000));
+    const expColor = st === 'expiring' ? 'amber' : 'green';
+    detailsHtml = `
+      <div class="detail-grid">
+        <div class="d-cell"><div class="d-label">Product</div><div class="d-val">${esc(r.productName)}</div></div>
+        <div class="d-cell"><div class="d-label">Package</div><div class="d-val">${esc(r.packageType)}</div></div>
+        <div class="d-cell"><div class="d-label">Activated</div><div class="d-val">${fmtLong(r.approvedAt)}</div></div>
+        <div class="d-cell"><div class="d-label">Expires</div><div class="d-val ${expColor}">${fmtLong(r.subscriptionExpiresAt)}</div></div>
+      </div>`;
+  } else if (st === 'expired') {
+    detailsHtml = `
+      <div class="detail-grid">
+        <div class="d-cell"><div class="d-label">Product</div><div class="d-val">${esc(r.productName)}</div></div>
+        <div class="d-cell"><div class="d-label">Package</div><div class="d-val">${esc(r.packageType)}</div></div>
+        <div class="d-cell"><div class="d-label">Was active</div><div class="d-val muted">${fmtLong(r.approvedAt)}</div></div>
+        <div class="d-cell"><div class="d-label">Expired</div><div class="d-val red">${fmtLong(r.subscriptionExpiresAt)}</div></div>
+      </div>`;
+  } else if (st === 'proc') {
+    detailsHtml = `
+      <div class="detail-grid">
+        <div class="d-cell"><div class="d-label">Product</div><div class="d-val">${esc(r.productName)}</div></div>
+        <div class="d-cell"><div class="d-label">Submitted</div><div class="d-val">${fmtLong(r.submittedAt)}</div></div>
+      </div>`;
+  }
+
+  /* renew CTA for expiring / expired */
+  let renewHtml = '';
+  if (st === 'expiring') {
+    const dLeft = Math.max(0, Math.ceil((new Date(r.subscriptionExpiresAt) - new Date()) / 86400000));
+    renewHtml = `
+      <div class="renew-block">
+        <div class="renew-text"><strong>⚡ Renew before it expires</strong>${dLeft} day${dLeft!==1?'s':''} left — contact us to renew instantly.</div>
+        <a class="renew-btn" href="mailto:dtc@dtc1.shop?subject=Renewal: ${encodeURIComponent(r.packageType)}">Renew Now →</a>
+      </div>`;
+  }
+  if (st === 'expired') {
+    renewHtml = `
+      <div class="renew-block" style="border-color:var(--red-border);background:var(--red-bg)">
+        <div class="renew-text" style="color:var(--red)"><strong>⊘ Subscription ended</strong>Contact DTC to reactivate your access.</div>
+        <a class="renew-btn" href="mailto:dtc@dtc1.shop?subject=Reactivation: ${encodeURIComponent(r.packageType)}" style="background:var(--red);color:#fff">Reactivate →</a>
+      </div>`;
+  }
+
+  /* payment section */
+  const payHtml = buildPayment(r, sym);
+
+  /* processing / declined blocks */
+  const procHtml = st === 'proc' ? `
+    <div class="proc-block">
+      <div class="proc-icon">⏳</div>
+      <div class="proc-text">Your details are being reviewed by the DTC team.<br>You will receive an email once your subscription is activated.</div>
+    </div>` : '';
+
+  const decHtml = st === 'declined' ? `
+    <div class="declined-block">⚠ ${esc(r.declineReason || 'This request was declined. Please contact support.')}</div>` : '';
+
+  return `
+  <div class="sub-card ${cardClass} fade-in" style="animation-delay:${idx * 0.07}s">
+    <div class="card-strip ${stripClass}"></div>
+    <div class="card-head">
+      <div>
+        <div class="card-product">
+          <div class="card-dot" style="background:${dotColor}"></div>
+          ${esc(r.productName)}
+        </div>
+        <div class="card-pkg">${esc(r.packageType)}</div>
+      </div>
+      <div class="s-pill ${pillClass}"><div class="pill-dot${dotCls}"></div>${pillLabels[st]}</div>
+    </div>
+    ${tickerHtml}
+    ${progHtml}
+    ${renewHtml}
+    ${detailsHtml}
+    ${procHtml}
+    ${payHtml}
+    ${decHtml}
+  </div>`;
+}
+
+/* ── payment receipt ── */
+function buildPayment(r, sym) {
+  if (!r.price && !r.isFree && !r.paidPrice) return '';
+
+  const methodLabels = {wechat:'WeChat Pay', alipay:'Alipay', bank:'Bank Transfer', cash:'Cash', other:'Other'};
+  const methodIcons  = {wechat:'💚', alipay:'💙', bank:'🏦', cash:'💵', other:'💳'};
+
+  let rows = '';
+
+  if (r.isFree) {
+    rows = `
+      <div class="pay-total"><span class="pk">Amount</span><span class="pv purple">🎁 Complimentary</span></div>`;
+  } else {
+    /* List price */
+    if (r.price > 0) {
+      rows += `<div class="pay-row"><span class="pk">List price</span><span class="pv">${sym}${r.price.toFixed(2)}</span></div>`;
+    }
+    /* Discount */
+    if (r.discount > 0) {
+      const dtag = r.discountReason ? `<span class="discount-tag">${esc(r.discountReason)}</span>` : '';
+      rows += `<div class="pay-row"><span class="pk">Discount${dtag}</span><span class="pv" style="color:var(--amber)">-${sym}${r.discount.toFixed(2)}</span></div>`;
+    }
+    /* paidPrice — admin may have set a custom override at approval */
+    const displayPaid = r.paidPrice !== undefined ? r.paidPrice : r.effectivePrice;
+    const isCustom    = r.paidPrice !== undefined && r.paidPrice !== r.effectivePrice;
+    const ctag        = isCustom ? `<span class="custom-tag">custom</span>` : '';
+    rows += `<hr class="pay-divider"/><div class="pay-total"><span class="pk">Total paid${ctag}</span><span class="pv">${sym}${displayPaid.toFixed(2)}</span></div>`;
+  }
+
+  let methodHtml = '';
+  if (r.paymentMethod) {
+    const icon  = methodIcons[r.paymentMethod] || '💳';
+    const label = methodLabels[r.paymentMethod] || r.paymentMethod;
+    methodHtml  = `<div class="method-row"><span class="method-icon">${icon}</span><span>${esc(label)}</span>${r.paymentRef ? `<span class="pay-ref" style="margin-left:auto">${esc(r.paymentRef)}</span>` : ''}</div>`;
+  }
+
+  return `
+  <div class="pay-section">
+    <div class="pay-label">💳 Payment Record</div>
+    ${rows}
+    ${methodHtml}
+  </div>`;
+}
+
+/* ── live ticker ── */
+function startTicker(r) {
+  const el = document.getElementById('tick-' + r.token);
+  if (!el) return;
+  const exp = new Date(r.subscriptionExpiresAt);
+
+  function tick() {
+    const now   = new Date();
+    const ms    = exp - now;
+    if (ms <= 0) {
+      el.innerHTML = '<div class="ticker-expired">⏱ Subscription ended — refresh to update</div>';
+      clearInterval(_tickers[r.token]);
+      return;
+    }
+    const d  = Math.floor(ms / 86400000);
+    const h  = Math.floor((ms % 86400000) / 3600000);
+    const m  = Math.floor((ms % 3600000)  / 60000);
+    const s  = Math.floor((ms % 60000)    / 1000);
+    el.innerHTML = `
+      <div class="ticker-tile"><div class="ticker-num">${d}</div><div class="ticker-unit">days</div></div>
+      <div class="ticker-sep">:</div>
+      <div class="ticker-tile"><div class="ticker-num">${pad(h)}</div><div class="ticker-unit">hrs</div></div>
+      <div class="ticker-sep">:</div>
+      <div class="ticker-tile"><div class="ticker-num">${pad(m)}</div><div class="ticker-unit">min</div></div>
+      <div class="ticker-sep">:</div>
+      <div class="ticker-tile"><div class="ticker-num">${pad(s)}</div><div class="ticker-unit">sec</div></div>`;
+  }
+
+  tick();
+  _tickers[r.token] = setInterval(tick, 1000);
+}
+
+<!-- ── PWA Install Banner (Android / desktop) ── -->
+<div class="pwa-banner" id="pwa-banner" role="complementary" aria-label="Install app">
+  <div class="pwa-banner-icon">DTC</div>
+  <div class="pwa-banner-text">
+    <div class="pwa-banner-title">Add DTC to your home screen</div>
+    <div class="pwa-banner-sub">Check your subscription anytime, even offline</div>
+  </div>
+  <div class="pwa-banner-actions">
+    <button class="pwa-install-btn" id="pwa-install-btn" onclick="PWA.install()">Install</button>
+    <button class="pwa-dismiss-btn" onclick="PWA.dismiss()">Later</button>
+  </div>
+</div>
+
+<!-- ── iOS install hint ── -->
+<div class="ios-hint" id="ios-hint">
+  <button class="ios-hint-close" onclick="PWA.closeIosHint()">×</button>
+  <div class="ios-hint-title">Install DTC on your iPhone</div>
+  <div class="ios-hint-step">
+    1. Tap the <strong>Share</strong> button at the bottom of Safari<br/>
+    2. Scroll down and tap <strong>Add to Home Screen</strong><br/>
+    3. Tap <strong>Add</strong> — done!
+  </div>
+</div>
+
+<!-- ── Installed confirmation toast ── -->
+<div class="installed-toast" id="installed-toast">
+  App installed — find DTC on your home screen
+</div>
+
+<script>
+// ── PWA controller ──────────────────────────────────────────────────────────
+const PWA = (() => {
+  let _deferredPrompt = null;
+
+  const _isIos = () => /iphone|ipad|ipod/i.test(navigator.userAgent);
+  const _isInStandalone = () =>
+    window.matchMedia('(display-mode: standalone)').matches ||
+    window.navigator.standalone === true;
+
+  const _dismissed = () => {
+    try { return localStorage.getItem('dtc-pwa-dismissed') === '1'; } catch { return false; }
+  };
+  const _setDismissed = () => {
+    try { localStorage.setItem('dtc-pwa-dismissed', '1'); } catch {}
+  };
+
+  // Listen for browser's beforeinstallprompt (Android / desktop Chrome)
+  window.addEventListener('beforeinstallprompt', e => {
+    e.preventDefault();
+    _deferredPrompt = e;
+    if (!_dismissed() && !_isInStandalone()) {
+      setTimeout(() => document.getElementById('pwa-banner')?.classList.add('show'), 2500);
+    }
+  });
+
+  // Hide banner when app is installed
+  window.addEventListener('appinstalled', () => {
+    document.getElementById('pwa-banner')?.classList.remove('show');
+    const toast = document.getElementById('installed-toast');
+    if (toast) {
+      toast.classList.add('show');
+      setTimeout(() => toast.classList.remove('show'), 4000);
+    }
+    _deferredPrompt = null;
+  });
+
+  // iOS: show hint if on iOS Safari, not installed, not dismissed
+  document.addEventListener('DOMContentLoaded', () => {
+    if (_isIos() && !_isInStandalone() && !_dismissed()) {
+      // Show after a small delay so the page has loaded
+      setTimeout(() => {
+        document.getElementById('ios-hint')?.classList.add('show');
+      }, 3000);
+    }
+  });
+
+  const install = async () => {
+    if (!_deferredPrompt) return;
+    _deferredPrompt.prompt();
+    const { outcome } = await _deferredPrompt.userChoice;
+    if (outcome === 'accepted') {
+      document.getElementById('pwa-banner')?.classList.remove('show');
+    }
+    _deferredPrompt = null;
+  };
+
+  const dismiss = () => {
+    document.getElementById('pwa-banner')?.classList.remove('show');
+    _setDismissed();
+  };
+
+  const closeIosHint = () => {
+    document.getElementById('ios-hint')?.classList.remove('show');
+    _setDismissed();
+  };
+
+  // Register service worker
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('/sw.js', { scope: '/' })
+        .then(reg => console.log('[DTC SW] registered, scope:', reg.scope))
+        .catch(err => console.warn('[DTC SW] registration failed:', err));
+    });
+  }
+
+  return { install, dismiss, closeIosHint };
+})();
+</script>
+
+</body>
+</html>

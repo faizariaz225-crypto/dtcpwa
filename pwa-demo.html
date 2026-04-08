@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover"/>
+<title>Install DTC App — Digital Tools Corner</title>
+<meta name="description" content="Add the DTC subscription app to your home screen for instant access."/>
+<meta name="theme-color" content="#2563eb"/>
+<link rel="manifest" href="/manifest.json"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-title" content="DTC"/>
+<link rel="apple-touch-icon" href="/icons/icon.svg"/>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600;9..40,700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#f7f8fc;
+  --surface:#ffffff;
+  --surface2:#f1f4f9;
+  --border:rgba(0,0,0,.08);
+  --border2:rgba(0,0,0,.14);
+  --text:#0f1623;
+  --text2:#374151;
+  --muted:#6b7280;
+  --muted2:#9ca3af;
+  --blue:#2563eb;
+  --blue-dim:#eff6ff;
+  --blue-mid:#bfdbfe;
+  --blue-text:#1d4ed8;
+  --green:#059669;
+  --green-bg:#ecfdf5;
+  --green-border:#a7f3d0;
+  --green-text:#065f46;
+  --sans:'DM Sans',system-ui,sans-serif;
+  --mono:'DM Mono','SF Mono',monospace;
+  --r:10px;--rlg:16px;--rxl:22px;
+  --shadow:0 1px 4px rgba(0,0,0,.07);
+  --shadow-md:0 4px 20px rgba(0,0,0,.09);
+}
+html{scroll-behavior:smooth}
+body{font-family:var(--sans);background:var(--bg);color:var(--text);min-height:100vh;-webkit-font-smoothing:antialiased;padding-bottom:env(safe-area-inset-bottom)}
+
+/* ── Header ── */
+header{background:var(--surface);border-bottom:1px solid var(--border);padding:1rem 1.5rem;display:flex;align-items:center;gap:.65rem;position:sticky;top:0;z-index:50}
+.logo{width:36px;height:36px;background:var(--blue);border-radius:9px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.82rem;color:#fff;font-family:var(--mono);flex-shrink:0}
+.brand-name{font-size:.92rem;font-weight:700;color:var(--text)}
+.brand-name em{color:var(--blue);font-style:normal}
+
+/* ── Hero ── */
+.hero{padding:2.5rem 1.5rem 0;text-align:center;max-width:520px;margin:0 auto}
+.app-icon-wrap{display:flex;justify-content:center;margin-bottom:1.4rem}
+.app-icon{width:96px;height:96px;border-radius:22px;background:var(--blue);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:1.5rem;color:#fff;font-family:var(--mono);box-shadow:0 8px 28px rgba(37,99,235,.3);position:relative}
+.app-icon-badge{position:absolute;bottom:-6px;right:-6px;width:26px;height:26px;background:var(--green);border-radius:50%;border:3px solid var(--bg);display:flex;align-items:center;justify-content:center}
+.app-icon-badge svg{width:12px;height:12px;fill:#fff}
+h1{font-size:1.6rem;font-weight:700;letter-spacing:-.035em;line-height:1.15;margin-bottom:.6rem;color:var(--text)}
+.hero-sub{font-size:.9rem;color:var(--muted);line-height:1.75;margin-bottom:2rem}
+
+/* ── Feature pills ── */
+.features{display:flex;justify-content:center;flex-wrap:wrap;gap:.5rem;margin-bottom:2.2rem}
+.feat-pill{display:inline-flex;align-items:center;gap:.35rem;background:var(--surface);border:1px solid var(--border);border-radius:99px;padding:.3rem .8rem;font-size:.75rem;color:var(--text2)}
+.feat-dot{width:6px;height:6px;border-radius:50%;background:var(--green);flex-shrink:0}
+
+/* ── Install button (shown when prompt available) ── */
+.install-btn-wrap{margin-bottom:2rem;display:none}
+.install-btn-wrap.show{display:block}
+.install-btn{width:100%;max-width:320px;background:var(--blue);color:#fff;border:none;border-radius:var(--rlg);padding:.85rem 1.8rem;font-family:var(--sans);font-size:1rem;font-weight:600;cursor:pointer;transition:all .18s;box-shadow:0 4px 16px rgba(37,99,235,.3);letter-spacing:-.01em}
+.install-btn:hover{background:#1d4ed8;transform:translateY(-2px);box-shadow:0 8px 24px rgba(37,99,235,.38)}
+.install-btn:active{transform:translateY(0)}
+.install-success{display:none;align-items:center;justify-content:center;gap:.5rem;background:var(--green-bg);border:1px solid var(--green-border);border-radius:var(--rlg);padding:.8rem 1.2rem;color:var(--green-text);font-size:.88rem;font-weight:600;margin-top:.75rem}
+.install-success.show{display:flex}
+
+/* ── Platform tabs ── */
+.tabs-section{padding:0 1.5rem;max-width:520px;margin:0 auto 2rem}
+.tab-header{display:flex;border-bottom:1px solid var(--border);margin-bottom:1.2rem}
+.tab-btn{flex:1;padding:.6rem .5rem;font-family:var(--sans);font-size:.82rem;font-weight:500;color:var(--muted);background:none;border:none;border-bottom:2px solid transparent;cursor:pointer;transition:all .15s;letter-spacing:-.01em}
+.tab-btn.active{color:var(--blue);border-bottom-color:var(--blue)}
+.tab-pane{display:none}.tab-pane.active{display:block}
+
+/* ── Steps ── */
+.steps{display:flex;flex-direction:column;gap:.75rem}
+.step{display:flex;align-items:flex-start;gap:.9rem;background:var(--surface);border:1px solid var(--border);border-radius:var(--rlg);padding:1rem 1.1rem;box-shadow:var(--shadow)}
+.step-num{width:28px;height:28px;border-radius:8px;background:var(--blue-dim);border:1px solid var(--blue-mid);display:flex;align-items:center;justify-content:center;font-size:.75rem;font-weight:700;color:var(--blue-text);font-family:var(--mono);flex-shrink:0;margin-top:.05rem}
+.step-body h3{font-size:.88rem;font-weight:600;color:var(--text);margin-bottom:.25rem;letter-spacing:-.01em}
+.step-body p{font-size:.8rem;color:var(--muted);line-height:1.65}
+.step-body strong{color:var(--text);font-weight:600}
+.step-img{margin-top:.7rem;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:.6rem .8rem;font-size:.75rem;color:var(--muted);font-family:var(--mono);display:flex;align-items:center;gap:.5rem}
+.step-img-bar{height:4px;background:var(--blue-mid);border-radius:2px;flex:1}
+
+/* ── QR section ── */
+.qr-section{padding:0 1.5rem 2.5rem;max-width:520px;margin:0 auto}
+.qr-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--rxl);padding:1.5rem;text-align:center;box-shadow:var(--shadow-md)}
+.qr-title{font-size:.88rem;font-weight:600;color:var(--text);margin-bottom:.35rem}
+.qr-sub{font-size:.78rem;color:var(--muted);margin-bottom:1.2rem;line-height:1.6}
+.qr-wrap{display:inline-block;background:var(--surface);border:1px solid var(--border);border-radius:var(--rlg);padding:.85rem;margin-bottom:1rem}
+canvas#qr-canvas{display:block}
+.qr-url{font-size:.72rem;font-family:var(--mono);color:var(--muted);background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:.3rem .6rem;display:inline-block}
+
+/* ── Already installed notice ── */
+.installed-notice{display:none;padding:0 1.5rem 2rem;max-width:520px;margin:0 auto}
+.installed-notice.show{display:block}
+.in-card{background:var(--green-bg);border:1px solid var(--green-border);border-radius:var(--rlg);padding:1.2rem 1.4rem;display:flex;align-items:center;gap:.8rem}
+.in-icon{width:40px;height:40px;border-radius:10px;background:#fff;display:flex;align-items:center;justify-content:center;flex-shrink:0;border:1px solid var(--green-border)}
+.in-icon svg{width:20px;height:20px;fill:var(--green)}
+.in-text h3{font-size:.88rem;font-weight:600;color:var(--green-text);margin-bottom:.15rem}
+.in-text p{font-size:.78rem;color:#065f46;line-height:1.5;opacity:.8}
+
+/* ── Share link section ── */
+.share-section{padding:0 1.5rem 1.5rem;max-width:520px;margin:0 auto}
+.share-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--rlg);padding:1.1rem 1.2rem;display:flex;align-items:center;gap:.8rem}
+.share-text{flex:1;min-width:0}
+.share-label{font-size:.65rem;font-weight:600;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin-bottom:.2rem}
+.share-url{font-size:.78rem;font-family:var(--mono);color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.copy-btn{background:var(--blue-dim);border:1.5px solid var(--blue-mid);border-radius:8px;padding:.38rem .8rem;font-size:.78rem;font-weight:600;color:var(--blue-text);cursor:pointer;font-family:var(--sans);white-space:nowrap;flex-shrink:0;transition:all .15s}
+.copy-btn:hover{background:#dbeafe}
+.copy-btn.done{background:var(--green-bg);border-color:var(--green-border);color:var(--green-text)}
+
+/* ── Footer ── */
+footer{text-align:center;padding:1.5rem;font-size:.72rem;color:var(--muted2);border-top:1px solid var(--border);background:var(--surface)}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">DTC</div>
+  <span class="brand-name">Digital Tools <em>Corner</em></span>
+</header>
+
+<!-- Already installed notice -->
+<div class="installed-notice" id="installed-notice">
+  <div class="in-card">
+    <div class="in-icon">
+      <svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+    </div>
+    <div class="in-text">
+      <h3>App already installed</h3>
+      <p>DTC is on your home screen. Open it from there for the best experience.</p>
+    </div>
+  </div>
+</div>
+
+<!-- Hero -->
+<div class="hero">
+  <div class="app-icon-wrap">
+    <div class="app-icon">
+      DTC
+      <div class="app-icon-badge">
+        <svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+      </div>
+    </div>
+  </div>
+  <h1>Add DTC to your home screen</h1>
+  <p class="hero-sub">Install the DTC app for one-tap access to your subscription status, expiry countdown, and account details — no browser needed.</p>
+
+  <div class="features">
+    <span class="feat-pill"><span class="feat-dot"></span>Works offline</span>
+    <span class="feat-pill"><span class="feat-dot"></span>Home screen shortcut</span>
+    <span class="feat-pill"><span class="feat-dot"></span>Instant loading</span>
+    <span class="feat-pill"><span class="feat-dot"></span>No app store needed</span>
+  </div>
+
+  <!-- Android/Desktop install button -->
+  <div class="install-btn-wrap" id="install-btn-wrap">
+    <button class="install-btn" id="install-btn" onclick="doInstall()">
+      Install App
+    </button>
+    <div class="install-success" id="install-success">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="#059669"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+      Installed! Find DTC on your home screen.
+    </div>
+  </div>
+</div>
+
+<!-- Platform install instructions -->
+<div class="tabs-section">
+  <div class="tab-header">
+    <button class="tab-btn active" id="tab-ios" onclick="switchTab('ios')">iPhone / iPad</button>
+    <button class="tab-btn" id="tab-android" onclick="switchTab('android')">Android</button>
+    <button class="tab-btn" id="tab-desktop" onclick="switchTab('desktop')">Desktop</button>
+  </div>
+
+  <!-- iOS -->
+  <div class="tab-pane active" id="pane-ios">
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">01</div>
+        <div class="step-body">
+          <h3>Open this page in Safari</h3>
+          <p>The install feature only works in <strong>Safari</strong>. If you're using Chrome or WeChat browser, copy the link and open it in Safari.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">02</div>
+        <div class="step-body">
+          <h3>Tap the Share button</h3>
+          <p>At the bottom of Safari, tap the <strong>Share</strong> button — the square with an arrow pointing upward.</p>
+          <div class="step-img">
+            <span>Safari toolbar</span>
+            <div class="step-img-bar"></div>
+            <span style="color:var(--blue-text);font-weight:600">Share</span>
+          </div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">03</div>
+        <div class="step-body">
+          <h3>Tap "Add to Home Screen"</h3>
+          <p>Scroll down in the share sheet until you see <strong>Add to Home Screen</strong>. Tap it.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">04</div>
+        <div class="step-body">
+          <h3>Tap Add</h3>
+          <p>A preview will appear with the app name "DTC". Tap <strong>Add</strong> in the top-right corner to confirm.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">05</div>
+        <div class="step-body">
+          <h3>Done — find DTC on your home screen</h3>
+          <p>The DTC icon will appear on your home screen. Tap it to open your subscription portal instantly, without a browser.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Android -->
+  <div class="tab-pane" id="pane-android">
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">01</div>
+        <div class="step-body">
+          <h3>Open this page in Chrome</h3>
+          <p>Use <strong>Google Chrome</strong> on Android. The install prompt appears automatically after a few seconds.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">02</div>
+        <div class="step-body">
+          <h3>Tap "Install" when the banner appears</h3>
+          <p>A banner or pop-up will appear at the bottom of the screen saying <strong>Add DTC to home screen</strong>. Tap Install.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">03</div>
+        <div class="step-body">
+          <h3>Or use the browser menu</h3>
+          <p>If no banner appears, tap the three-dot menu (⋮) in the top-right corner of Chrome, then tap <strong>Add to Home Screen</strong> or <strong>Install App</strong>.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">04</div>
+        <div class="step-body">
+          <h3>Confirm installation</h3>
+          <p>Tap <strong>Install</strong> in the confirmation dialog. DTC will appear on your home screen in seconds.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Desktop -->
+  <div class="tab-pane" id="pane-desktop">
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">01</div>
+        <div class="step-body">
+          <h3>Open this page in Chrome or Edge</h3>
+          <p>Install works in <strong>Google Chrome</strong> and <strong>Microsoft Edge</strong>. Firefox does not support PWA install.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">02</div>
+        <div class="step-body">
+          <h3>Look for the install icon in the address bar</h3>
+          <p>In Chrome, look for a small computer icon or download arrow in the right side of the address bar. In Edge, look for a "+" icon. Click it.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">03</div>
+        <div class="step-body">
+          <h3>Click Install</h3>
+          <p>A dialog will appear showing a preview of the DTC app. Click <strong>Install</strong> to add it to your desktop and Start menu.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">04</div>
+        <div class="step-body">
+          <h3>Launch from your desktop</h3>
+          <p>DTC opens in its own window — no browser chrome, no address bar. Just your subscription portal, full screen.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Share this page -->
+<div class="share-section">
+  <div class="share-card">
+    <div class="share-text">
+      <div class="share-label">Share this install page</div>
+      <div class="share-url" id="share-url">Loading…</div>
+    </div>
+    <button class="copy-btn" id="copy-share-btn" onclick="copyShareLink()">Copy link</button>
+  </div>
+</div>
+
+<!-- QR code for sending to phone -->
+<div class="qr-section">
+  <div class="qr-card">
+    <div class="qr-title">On a desktop? Scan to open on your phone</div>
+    <div class="qr-sub">Point your phone camera at the QR code to open this page on your mobile device, then follow the steps above.</div>
+    <div class="qr-wrap">
+      <canvas id="qr-canvas" width="180" height="180"></canvas>
+    </div>
+    <br/>
+    <span class="qr-url" id="qr-url-label">Loading…</span>
+  </div>
+</div>
+
+<footer>
+  DTC — Digital Tools Corner &nbsp;·&nbsp; dtc@dtc1.shop &nbsp;·&nbsp; WhatsApp: +86 197 3812 2807
+</footer>
+
+<!-- QR code library -->
+<script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+
+<script>
+// ── Detect platform and switch tab automatically ──────────────────────────────
+(function detectPlatform() {
+  const ua = navigator.userAgent;
+  if (/android/i.test(ua)) switchTab('android');
+  else if (/iPad|iPhone|iPod/.test(ua)) switchTab('ios');
+  else switchTab('desktop');
+})();
+
+// ── Already installed? ────────────────────────────────────────────────────────
+if (window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone) {
+  document.getElementById('installed-notice').classList.add('show');
+}
+
+// ── Install prompt (Android / desktop Chrome) ─────────────────────────────────
+let _deferredPrompt = null;
+window.addEventListener('beforeinstallprompt', e => {
+  e.preventDefault();
+  _deferredPrompt = e;
+  document.getElementById('install-btn-wrap').classList.add('show');
+});
+window.addEventListener('appinstalled', () => {
+  document.getElementById('install-btn-wrap').style.display = 'none';
+  document.getElementById('install-success').classList.add('show');
+  _deferredPrompt = null;
+});
+
+async function doInstall() {
+  if (!_deferredPrompt) return;
+  _deferredPrompt.prompt();
+  const { outcome } = await _deferredPrompt.userChoice;
+  if (outcome === 'accepted') {
+    document.getElementById('install-btn').textContent = 'Installing…';
+    document.getElementById('install-btn').disabled = true;
+  }
+  _deferredPrompt = null;
+}
+
+// ── Tab switching ─────────────────────────────────────────────────────────────
+function switchTab(id) {
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+  const btn  = document.getElementById('tab-' + id);
+  const pane = document.getElementById('pane-' + id);
+  if (btn)  btn.classList.add('active');
+  if (pane) pane.classList.add('active');
+}
+
+// ── Share URL ─────────────────────────────────────────────────────────────────
+const pageUrl = window.location.origin + '/install';
+document.getElementById('share-url').textContent   = pageUrl;
+document.getElementById('qr-url-label').textContent = pageUrl;
+
+function copyShareLink() {
+  navigator.clipboard.writeText(pageUrl).then(() => {
+    const btn = document.getElementById('copy-share-btn');
+    btn.textContent = 'Copied!';
+    btn.classList.add('done');
+    setTimeout(() => { btn.textContent = 'Copy link'; btn.classList.remove('done'); }, 2200);
+  });
+}
+
+// ── QR code ───────────────────────────────────────────────────────────────────
+window.addEventListener('load', () => {
+  if (typeof QRCode === 'undefined') return;
+  const canvas = document.getElementById('qr-canvas');
+  QRCode.toCanvas(canvas, pageUrl, {
+    width:          180,
+    margin:         2,
+    color: { dark: '#0f1623', light: '#ffffff' },
+    errorCorrectionLevel: 'M',
+  }, err => { if (err) console.warn('QR error', err); });
+});
+
+// ── Service Worker ────────────────────────────────────────────────────────────
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('/sw.js', { scope: '/' }).catch(() => {});
+}
+</script>
+</body>
+</html>

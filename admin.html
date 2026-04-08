@@ -1,0 +1,1908 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Admin — DTC Digital Tools Corner</title>
+
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+
+  <!-- Modular CSS -->
+  <link rel="stylesheet" href="css/theme.css"/>
+  <link rel="stylesheet" href="css/layout.css"/>
+
+  <!-- Page-specific component styles (inline — scoped per component) -->
+  <style>
+    /* ── Dashboard ─────────────────────────────────────────────────────────── */
+    .stats { display: grid; grid-template-columns: repeat(7,1fr); gap: .8rem; margin-bottom: 1.3rem; }
+    @media (max-width:1100px) { .stats { grid-template-columns: repeat(4,1fr); } }
+    @media (max-width:700px)  { .stats { grid-template-columns: repeat(2,1fr); } }
+    @media (max-width:480px) { .stats { grid-template-columns: repeat(2,1fr); } }
+    .stat     { background: var(--white); border: 1px solid var(--border); border-radius: 10px; padding: .9rem 1rem; box-shadow: var(--shadow); }
+    .stat-val { font-size: 1.5rem; font-weight: 700; font-family: 'JetBrains Mono',monospace; color: var(--text); }
+    .stat-lbl { font-size: .61rem; color: var(--muted); text-transform: uppercase; letter-spacing: .07em; margin-top: .1rem; font-weight: 500; }
+    .sv-blue { color: var(--blue); } .sv-warn { color: var(--warn); }
+    .sv-green{ color: var(--success); } .sv-red { color: var(--error); } .sv-ind { color: #6366f1; }
+
+    .link-result     { display: none; margin-top: 1rem; background: var(--success-bg); border: 1px solid var(--success-border); border-radius: 10px; padding: .9rem 1rem; }
+    .link-result.show{ display: block; }
+    .lr-label { font-size: .63rem; text-transform: uppercase; letter-spacing: .1em; color: var(--success); font-weight: 700; margin-bottom: .45rem; }
+    .lr-row   { display: flex; align-items: center; gap: .5rem; }
+    .lr-text  { font-family: 'JetBrains Mono',monospace; font-size: .7rem; color: var(--text); flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .lr-note  { font-size: .68rem; color: var(--muted); margin-top: .5rem; }
+    .copy-btn { background: var(--white); border: 1.5px solid var(--border); border-radius: 6px; padding: .22rem .55rem; font-size: .66rem; font-family: 'Inter',sans-serif; color: var(--muted); cursor: pointer; transition: all .18s; flex-shrink: 0; font-weight: 600; }
+    .copy-btn:hover, .copy-btn.done { border-color: var(--success); color: var(--success); background: var(--success-bg); }
+
+    .orgid-wrap { display: flex; align-items: flex-start; gap: .35rem; }
+    .orgid-txt  { font-family: 'JetBrains Mono',monospace; font-size: .66rem; color: var(--text); word-break: break-all; line-height: 1.55; flex: 1; }
+
+    .xbtn { background: none; border: none; color: var(--blue); cursor: pointer; font-size: .67rem; font-family: 'Inter',sans-serif; padding: 0; font-weight: 500; display: block; margin-top: .22rem; }
+    .xbtn:hover { text-decoration: underline; }
+    .log-row        { display: none; background: #f8faff; }
+    .log-row.open   { display: table-row; }
+    .log-inner      { padding: .65rem .75rem .65rem 1.8rem; font-size: .63rem; font-family: 'JetBrains Mono',monospace; border-top: 1px solid var(--border); }
+    .log-hdr        { display: grid; grid-template-columns: 140px 110px 1fr; gap: .4rem; font-size: .58rem; color: var(--muted); padding-bottom: .25rem; border-bottom: 1px solid var(--border); margin-bottom: .2rem; text-transform: uppercase; letter-spacing: .07em; font-weight: 600; }
+    .log-entry      { display: grid; grid-template-columns: 140px 110px 1fr; gap: .4rem; padding: .25rem 0; border-bottom: 1px solid #f1f5f9; color: var(--muted); }
+    .log-entry:last-child { border-bottom: none; }
+    .le-t { color: var(--text); } .le-ua { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--muted2); }
+
+    .sub-exp .days  { font-weight: 700; margin-bottom: .05rem; font-size: .7rem; }
+    .sub-exp.ok .days    { color: var(--success); }
+    .sub-exp.soon .days  { color: var(--warn); }
+    .sub-exp.danger .days{ color: var(--error); }
+    .sub-exp .date  { color: var(--muted); font-size: .66rem; font-family: 'JetBrains Mono',monospace; }
+    .exp-flag       { display: inline-block; border-radius: 4px; font-size: .6rem; font-weight: 600; padding: .07rem .4rem; margin-top: .15rem; }
+    .exp-flag.soon  { background: var(--warn-bg);  border: 1px solid var(--warn-border);  color: var(--warn); }
+    .exp-flag.danger,
+    .exp-flag.expired { background: var(--error-bg); border: 1px solid var(--error-border); color: var(--error); }
+
+    /* Action buttons inside table */
+    .action-wrap  { display: flex; flex-direction: column; gap: .4rem; }
+    .approve-btn  { background: var(--success-bg); border: 1.5px solid var(--success-border); border-radius: 7px; padding: .3rem .75rem; font-family: 'Inter',sans-serif; font-size: .73rem; font-weight: 700; color: var(--success); cursor: pointer; transition: all .18s; white-space: nowrap; }
+    .approve-btn:hover:not(:disabled)  { background: #dcfce7; border-color: #86efac; transform: translateY(-1px); }
+    .approve-btn:disabled  { opacity: .4; cursor: not-allowed; }
+    .decline-btn  { background: var(--error-bg);   border: 1.5px solid var(--error-border);   border-radius: 7px; padding: .3rem .75rem; font-family: 'Inter',sans-serif; font-size: .73rem; font-weight: 700; color: var(--error);   cursor: pointer; transition: all .18s; white-space: nowrap; }
+    .decline-btn:hover:not(:disabled)  { background: #fee2e2; border-color: #fca5a5; transform: translateY(-1px); }
+    /* Generic small action buttons */
+    .action-btn       { border-radius: 7px; padding: .28rem .75rem; font-family: 'Inter',sans-serif; font-size: .72rem; font-weight: 700; cursor: pointer; transition: all .18s; white-space: nowrap; border: 1.5px solid; }
+    .action-btn:hover { transform: translateY(-1px); }
+    .action-btn.deact { background: #f3f4f6; border-color: #d1d5db; color: #6b7280; }
+    .action-btn.deact:hover { background: #e5e7eb; border-color: #9ca3af; }
+    .action-btn.react { background: var(--blue-light); border-color: var(--blue-mid); color: var(--blue); }
+    .action-btn.react:hover { background: #dbeafe; }
+
+    /* ── Customers ─────────────────────────────────────────────────────────── */
+    .cust-card { background: var(--white); border: 1.5px solid var(--border); border-radius: 12px; padding: 1.3rem 1.5rem; margin-bottom: .9rem; box-shadow: var(--shadow); transition: all .2s; }
+    .cust-card:hover { box-shadow: var(--shadow-md); }
+    .cust-card.expiring    { border-color: var(--warn-border);  background: var(--warn-bg); }
+    .cust-card.expired-sub { border-color: var(--error-border); background: var(--error-bg); }
+    .cust-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem; margin-bottom: .9rem; flex-wrap: wrap; }
+    .cust-nm  { font-size: 1rem; font-weight: 700; color: var(--text); margin-bottom: .2rem; }
+    .cust-pk  { font-size: .76rem; color: var(--muted); font-weight: 500; }
+    .cust-grid{ display: grid; grid-template-columns: repeat(3,1fr); gap: .55rem .9rem; margin-bottom: .9rem; }
+    @media (max-width:560px) { .cust-grid { grid-template-columns: 1fr 1fr; } }
+    .cf-lbl { font-size: .61rem; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); margin-bottom: .12rem; font-weight: 600; }
+    .cf-val { font-size: .75rem; font-family: 'JetBrains Mono',monospace; color: var(--text); word-break: break-all; }
+    .cf-val.green { color: var(--success); } .cf-val.warn { color: var(--warn); } .cf-val.red { color: var(--error); }
+    .exp-bar-wrap  { margin-bottom: .9rem; }
+    .exp-bar-label { display: flex; justify-content: space-between; font-size: .64rem; color: var(--muted); margin-bottom: .3rem; font-weight: 500; }
+    .exp-bar       { height: 6px; background: var(--border); border-radius: 3px; overflow: hidden; }
+    .exp-bar-fill  { height: 100%; border-radius: 3px; transition: width .5s ease; }
+    .email-actions { display: flex; gap: .4rem; flex-wrap: wrap; }
+
+    /* ── Instructions ──────────────────────────────────────────────────────── */
+    .instr-card    { background: var(--white); border: 1.5px solid var(--border); border-radius: 12px; padding: 1.2rem 1.4rem; margin-bottom: .8rem; box-shadow: var(--shadow); transition: all .2s; }
+    .instr-card:hover { box-shadow: var(--shadow-md); }
+    .instr-header  { display: flex; align-items: center; justify-content: space-between; margin-bottom: .7rem; gap: 1rem; flex-wrap: wrap; }
+    .instr-name    { font-size: .92rem; font-weight: 700; color: var(--text); }
+    .instr-actions { display: flex; gap: .4rem; }
+    .instr-preview { font-size: .75rem; color: var(--muted); line-height: 1.6; background: #f8fafc; border: 1px solid var(--border); border-radius: 7px; padding: .75rem .9rem; }
+    .preview-label { font-size: .65rem; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .07em; margin-bottom: .2rem; }
+    .preview-text  { color: var(--text); font-size: .78rem; }
+    .preview-steps { padding-left: 1.2rem; font-size: .73rem; color: var(--muted); }
+
+    /* ── Email ─────────────────────────────────────────────────────────────── */
+    .provider-btns { display: flex; gap: .4rem; flex-wrap: wrap; margin-bottom: 1.2rem; }
+    .gmail-guide   { display: none; background: var(--warn-bg); border: 1px solid var(--warn-border); border-radius: 10px; padding: 1rem 1.1rem; margin-bottom: 1.2rem; font-size: .79rem; line-height: 1.75; color: var(--muted); }
+    .email-log-tbl th { text-align: left; font-size: .61rem; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); padding: .4rem .6rem; font-weight: 600; background: #f8fafc; border-bottom: 1px solid var(--border); }
+    .email-log-tbl td { padding: .55rem .6rem; border-bottom: 1px solid var(--border); color: var(--muted); font-size: .72rem; }
+    .email-log-tbl tr:last-child td { border-bottom: none; }
+    .email-log-tbl tr:hover td { background: #f8fafc; }
+
+    /* ── Instruction section labels ──────────────────────────────────────────── */
+    .instr-section-label{font-size:.6rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--blue);background:var(--blue-light);border:1px solid var(--blue-mid);border-radius:4px;padding:.12rem .5rem;display:inline-block;margin-bottom:.4rem}
+    .instr-section-divider{height:1px;background:var(--border);margin:1rem 0 .8rem}
+    .modal-section-label{font-size:.65rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--blue);margin-bottom:.7rem;padding:.3rem .7rem;background:var(--blue-light);border-radius:6px;display:block}
+
+    /* ── Resellers ────────────────────────────────────────────────────────────── */
+    .reseller-card{background:var(--white);border:1.5px solid var(--border);border-radius:12px;padding:1.1rem 1.3rem;margin-bottom:.8rem;box-shadow:var(--shadow)}
+    .reseller-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:.7rem;gap:1rem;flex-wrap:wrap}
+    .reseller-name{font-size:.92rem;font-weight:700;color:var(--text)}
+    .reseller-id{font-size:.68rem;color:var(--muted);font-family:'JetBrains Mono',monospace;margin-top:.1rem}
+    .reseller-revenue{font-size:1.1rem;font-weight:700;color:var(--success);font-family:'JetBrains Mono',monospace}
+    .reseller-count{font-size:.68rem;color:var(--muted);margin-top:.1rem;text-align:right}
+    .reseller-sales{border-top:1px solid var(--border);padding-top:.6rem}
+    .reseller-sale-row{display:grid;grid-template-columns:1fr 1fr 90px 60px;gap:.4rem;font-size:.73rem;padding:.25rem 0;border-bottom:1px solid #f1f5f9;align-items:center}
+    .reseller-sale-row:last-child{border-bottom:none}
+    .rs-name{font-weight:600;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+    .rs-pkg{color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+    .rs-date{color:var(--muted2);font-size:.67rem}
+    .rs-price{font-weight:700;color:var(--success);text-align:right;font-family:'JetBrains Mono',monospace}
+    /* ── Settings page ────────────────────────────────────────────────────────── */
+    .setting-block{background:var(--white);border:1px solid var(--border);border-radius:12px;padding:1.3rem 1.5rem;margin-bottom:1rem;box-shadow:var(--shadow)}
+    .setting-block-title{font-size:.8rem;font-weight:700;color:var(--text);margin-bottom:.3rem}
+    .setting-block-sub{font-size:.73rem;color:var(--muted);margin-bottom:.9rem;line-height:1.5}
+    /* ── Bulk Email & Template Editor ────────────────────────────────────────── */
+    .email-layout{display:grid;grid-template-columns:240px 1fr 360px;gap:1.2rem;align-items:start}
+    @media(max-width:1200px){.email-layout{grid-template-columns:220px 1fr}}
+    @media(max-width:800px) {.email-layout{grid-template-columns:1fr}}
+
+    /* Template list */
+    .tmpl-panel{background:var(--white);border:1px solid var(--border);border-radius:12px;padding:.9rem;box-shadow:var(--shadow)}
+    .tmpl-panel-title{font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin-bottom:.7rem}
+    .tmpl-item{padding:.65rem .8rem;border-radius:8px;cursor:pointer;border:1.5px solid transparent;margin-bottom:.35rem;transition:all .15s}
+    .tmpl-item:hover{background:#f8fafc;border-color:var(--border)}
+    .tmpl-item.active{background:var(--blue-light);border-color:var(--blue-mid)}
+    .tmpl-item-name{font-size:.8rem;font-weight:600;color:var(--text);margin-bottom:.1rem}
+    .tmpl-item-subject{font-size:.68rem;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+    .tmpl-item-actions{display:flex;gap:.3rem;margin-top:.4rem}
+
+    /* Compose panel */
+    .compose-panel{background:var(--white);border:1px solid var(--border);border-radius:12px;padding:1.3rem 1.4rem;box-shadow:var(--shadow)}
+    .compose-panel-title{font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.09em;color:var(--muted);margin-bottom:1rem;display:flex;align-items:center;justify-content:space-between}
+    .recipient-bar{display:flex;align-items:center;gap:.7rem;flex-wrap:wrap;margin-bottom:1rem;padding:.7rem .9rem;background:#f8fafc;border:1px solid var(--border);border-radius:8px}
+    .recipient-count-badge{background:var(--blue-light);border:1px solid var(--blue-mid);border-radius:99px;padding:.18rem .65rem;font-size:.72rem;font-weight:700;color:var(--blue);font-family:'JetBrains Mono',monospace;white-space:nowrap}
+    .var-chips{display:flex;flex-wrap:wrap;gap:.3rem;margin-bottom:.8rem}
+    .var-chip{background:#f1f5f9;border:1px solid var(--border);border-radius:5px;padding:.15rem .5rem;font-size:.67rem;font-family:'JetBrains Mono',monospace;color:var(--blue);cursor:pointer;transition:all .15s;font-weight:500}
+    .var-chip:hover{background:var(--blue-light);border-color:var(--blue-mid)}
+    .compose-textarea{width:100%;min-height:220px;resize:vertical;font-family:'JetBrains Mono',monospace;font-size:.8rem;line-height:1.6;padding:.8rem;border:1.5px solid var(--border);border-radius:8px;outline:none;transition:border-color .2s}
+    .compose-textarea:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(37,99,235,.1)}
+    .send-bar{display:flex;align-items:center;gap:.8rem;margin-top:.9rem;flex-wrap:wrap}
+    .btn-send{background:#15803d;color:#fff;padding:.65rem 1.4rem;font-size:.88rem;font-weight:700;border:none;border-radius:9px;cursor:pointer;font-family:'Inter',sans-serif;transition:all .18s;display:flex;align-items:center;gap:.45rem}
+    .btn-send:hover:not(:disabled){background:#166534;transform:translateY(-1px);box-shadow:0 4px 14px rgba(22,163,74,.3)}
+    .btn-send:disabled{opacity:.5;cursor:not-allowed;transform:none}
+
+    /* Preview panel */
+    .preview-panel{background:var(--white);border:1px solid var(--border);border-radius:12px;padding:1rem;box-shadow:var(--shadow);position:sticky;top:1.5rem}
+    .preview-panel-title{font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin-bottom:.7rem;display:flex;align-items:center;gap:.4rem}
+    .preview-sample{font-size:.68rem;color:var(--muted);background:#f8fafc;border-radius:5px;padding:.2rem .5rem;font-family:'JetBrains Mono',monospace}
+    #email-preview-frame{width:100%;height:420px;border:1px solid var(--border);border-radius:8px;background:#f0f4ff}
+
+    /* Template editor modal extras */
+    .teditor-hint{font-size:.7rem;color:var(--muted2);margin-bottom:.4rem;line-height:1.5}
+    .html-textarea{font-family:'JetBrains Mono',monospace;font-size:.78rem;min-height:200px;resize:vertical;line-height:1.55}
+
+    /* ── Products page ───────────────────────────────────────────────────────── */
+    .product-card{background:var(--white);border:1.5px solid var(--border);border-radius:12px;padding:1.2rem 1.4rem;margin-bottom:.9rem;box-shadow:var(--shadow);transition:all .2s}
+    .product-card:hover{box-shadow:var(--shadow-md)}
+    .product-card.inactive{opacity:.6}
+    .product-card-header{display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;margin-bottom:.8rem;flex-wrap:wrap}
+    .product-dot{width:12px;height:12px;border-radius:50%;flex-shrink:0;margin-top:.15rem}
+    .product-name{font-size:.92rem;font-weight:700;color:var(--text)}
+    .product-meta{font-size:.74rem;color:var(--muted);margin-top:.1rem}
+    .product-packages{display:flex;flex-direction:column;gap:.3rem;margin-bottom:.7rem}
+    .pkg-row{display:flex;align-items:center;gap:.6rem;font-size:.76rem;padding:.25rem .5rem;background:#f8fafc;border-radius:6px}
+    .pkg-label{flex:1;color:var(--text);font-weight:500}
+    .pkg-price{font-weight:700;color:var(--success);font-family:'JetBrains Mono',monospace;min-width:50px;text-align:right}
+    .pkg-duration{color:var(--muted);font-size:.68rem;min-width:35px;text-align:right}
+    .product-creds{background:#fdf4ff;border:1px solid #e9d5ff;border-radius:8px;padding:.65rem .85rem}
+    .creds-label{font-size:.63rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:#7c3aed;margin-bottom:.3rem}
+    .creds-preview{font-size:.72rem;color:#581c87;font-family:'JetBrains Mono',monospace;white-space:pre-wrap;word-break:break-all}
+    /* Package edit rows in modal */
+    .pkg-edit-row{display:grid;grid-template-columns:1fr 90px 80px 32px;gap:.5rem;align-items:center;margin-bottom:.5rem}
+    .pkg-price-wrap{position:relative}
+    .pkg-currency{position:absolute;left:.7rem;top:50%;transform:translateY(-50%);color:var(--muted);font-size:.82rem;pointer-events:none}
+    .pkg-price-input,.pkg-label-input,.pkg-dur-input{padding:.5rem .7rem;font-size:.82rem;border:1.5px solid var(--border);border-radius:7px;background:var(--white);color:var(--text);outline:none;width:100%}
+    .pkg-price-input{padding-left:1.6rem}
+    .pkg-price-input:focus,.pkg-label-input:focus,.pkg-dur-input:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(37,99,235,.1)}
+    @media(max-width:480px){.pkg-edit-row{grid-template-columns:1fr 1fr;gap:.4rem}}
+    /* Price badge in dashboard */
+    .price-badge{display:inline-flex;align-items:center;padding:.1rem .5rem;border-radius:99px;font-size:.62rem;font-weight:700;background:#f0fdf4;border:1px solid #bbf7d0;color:#15803d;font-family:'JetBrains Mono',monospace}
+    /* Price input in generate form */
+    .price-input-wrap{position:relative}
+    .price-input-wrap input{padding-left:1.8rem}
+    .price-currency-icon{position:absolute;left:.75rem;top:50%;transform:translateY(-50%);color:var(--muted);font-weight:700;font-size:.88rem;pointer-events:none}
+
+    /* ── Revenue page ──────────────────────────────────────────────────────── */
+    .rev-big{font-size:2.4rem;font-weight:800;font-family:'JetBrains Mono',monospace;color:var(--success);letter-spacing:-.03em;margin-bottom:.2rem}
+    .rev-big-label{font-size:.72rem;color:var(--muted);text-transform:uppercase;letter-spacing:.1em;font-weight:600}
+    .rev-product-block{background:var(--white);border:1px solid var(--border);border-radius:10px;padding:1rem 1.2rem;margin-bottom:.9rem;box-shadow:var(--shadow)}
+    .rev-product-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:.6rem;flex-wrap:wrap;gap:.5rem}
+    .rev-product-name{font-size:.85rem;font-weight:700;color:var(--text)}
+    .rev-count{font-size:.68rem;color:var(--muted);background:#f1f5f9;border-radius:99px;padding:.1rem .5rem}
+    .rev-product-total{font-size:.95rem;font-weight:700;font-family:'JetBrains Mono',monospace}
+    .rev-bar-wrap{display:flex;align-items:center;gap:.6rem;margin-bottom:.7rem}
+    .rev-bar{flex:1;height:6px;background:var(--border);border-radius:3px;overflow:hidden}
+    .rev-bar-fill{height:100%;border-radius:3px;transition:width .5s ease}
+    .rev-bar-pct{font-size:.65rem;color:var(--muted);font-family:'JetBrains Mono',monospace;min-width:30px;text-align:right}
+    .rev-row{display:grid;grid-template-columns:1fr 1fr 100px 70px;gap:.5rem;align-items:center;padding:.3rem .25rem;border-bottom:1px solid #f1f5f9;font-size:.74rem}
+    .rev-row:last-child{border-bottom:none}
+    .rev-row-name{font-weight:600;color:var(--text)}
+    .rev-row-pkg{color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+    .rev-row-date{color:var(--muted2);font-size:.68rem}
+    .rev-row-price{font-weight:700;color:var(--success);text-align:right;font-family:'JetBrains Mono',monospace}
+
+    /* ── Notification page ────────────────────────────────────────────────────── */
+    .notif-type-btns{display:flex;gap:.4rem;flex-wrap:wrap;margin-bottom:.9rem}
+    .notif-type-btn{padding:.28rem .8rem;border-radius:6px;font-size:.75rem;font-weight:600;cursor:pointer;border:1.5px solid var(--border);background:transparent;font-family:'Inter',sans-serif;transition:all .18s}
+    .notif-type-btn:hover{border-color:var(--border2)}
+    .notif-type-btn.sel-info   {background:#eff6ff;border-color:#bfdbfe;color:#1d4ed8}
+    .notif-type-btn.sel-success{background:#f0fdf4;border-color:#bbf7d0;color:#15803d}
+    .notif-type-btn.sel-warning{background:#fffbeb;border-color:#fde68a;color:#b45309}
+    .notif-type-btn.sel-error  {background:#fef2f2;border-color:#fecaca;color:#dc2626}
+
+    /* ── Extra recipient tags ────────────────────────────────────────────────── */
+    .extra-tag{display:inline-flex;align-items:center;gap:.3rem;background:var(--blue-light);border:1px solid var(--blue-mid);border-radius:99px;padding:.18rem .55rem .18rem .7rem;font-size:.68rem;color:var(--blue-text);font-weight:500;max-width:240px}
+    .extra-tag span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+    .extra-tag button{background:none;border:none;color:var(--blue);cursor:pointer;font-size:.75rem;padding:0;line-height:1;opacity:.65;flex-shrink:0}
+    .extra-tag button:hover{opacity:1}
+    .extra-tag.external{background:#fdf4ff;border-color:#e9d5ff;color:#5b21b6}
+    .extra-tag.external button{color:#7c3aed}
+
+    /* ── Customer searchable dropdown ─────────────────────────────────────── */
+    #cust-name-wrap { position: relative; }
+    #cust-name-wrap input { width: 100%; box-sizing: border-box; }
+    .cd-list { position: absolute; top: calc(100% + 3px); left: 0; right: 0; background: var(--white); border: 1.5px solid var(--border); border-radius: 9px; box-shadow: 0 6px 24px rgba(0,0,0,.1); z-index: 999; max-height: 220px; overflow-y: auto; display: none; }
+    .cd-item { padding: .52rem .85rem; font-size: .82rem; color: var(--text); cursor: pointer; transition: background .12s; border-bottom: 1px solid #f1f5f9; }
+    .cd-item:last-child { border-bottom: none; }
+    .cd-item:hover, .cd-item.focused { background: var(--blue-light); color: var(--blue); }
+    .cd-item-new { color: var(--blue); font-weight: 600; background: #f0f9ff; border-bottom: 1px solid var(--border) !important; }
+    .cd-item-new:hover, .cd-item-new.focused { background: var(--blue-light); }
+
+    /* ── Customer sub-rows ─────────────────────────────────────────────────── */
+    .sub-row:last-child { border-bottom: none !important; }
+
+    /* ── Login screen ──────────────────────────────────────────────────────── */
+    #login-wrap {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--bg);
+      width: 100%;
+      padding: 2rem 1rem;
+    }
+    .login-card {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 2.8rem 2.4rem;
+      width: 100%;
+      max-width: 400px;
+      box-shadow: var(--shadow-lg);
+      animation: fadeUp .4s ease;
+    }
+    .login-logo {
+      display: flex;
+      align-items: center;
+      gap: .8rem;
+      margin-bottom: 2rem;
+    }
+    .login-logo-icon {
+      width: 44px;
+      height: 44px;
+      background: var(--blue);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 14px rgba(37,99,235,.35);
+    }
+    .login-logo-icon svg { width: 22px; height: 22px; }
+    .login-brand   { font-size: 1.15rem; font-weight: 800; color: var(--text); letter-spacing: -.025em; }
+    .login-tagline { font-size: .72rem; color: var(--muted); margin-top: .08rem; }
+    .login-title   { font-size: 1.3rem; font-weight: 700; color: var(--text); margin-bottom: .3rem; letter-spacing: -.02em; }
+    .login-sub     { font-size: .82rem; color: var(--muted); margin-bottom: 1.6rem; }
+    .input-group   { position: relative; }
+    .input-group input { padding-left: 2.6rem; }
+    .input-group-icon { position: absolute; left: .85rem; top: 50%; transform: translateY(-50%); color: var(--muted2); font-size: .85rem; pointer-events: none; }
+    .btn-login     { width: 100%; padding: .8rem; font-size: .92rem; border-radius: 10px; margin-top: .4rem; }
+    .login-footer  { margin-top: 1.4rem; font-size: .7rem; color: var(--muted2); text-align: center; }
+  </style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════════════════════════════════════════════
+     LOGIN SCREEN
+═══════════════════════════════════════════════════════════════════════════ -->
+<div id="login-wrap">
+  <div class="login-card">
+    <div class="login-logo">
+      <div class="login-logo-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
+        </svg>
+      </div>
+      <div>
+        <div class="login-brand">DTC</div>
+        <div class="login-tagline">Digital Tools Corner</div>
+      </div>
+    </div>
+
+    <div class="login-title">Welcome back</div>
+    <div class="login-sub">Sign in to the admin panel to manage activations.</div>
+
+    <div class="form-group">
+      <label for="admin-key">Admin Key</label>
+      <div class="input-group">
+        <span class="input-group-icon">🔑</span>
+        <input type="password" id="admin-key" placeholder="Enter your admin key…"/>
+      </div>
+    </div>
+
+    <button class="btn btn-primary btn-login" id="login-btn" onclick="Auth.login()">Sign In →</button>
+    <div class="msg err" id="login-err"></div>
+
+    <div class="login-footer">DTC Admin Panel v3.0</div>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════════════════════════════════════
+     APP SHELL  (hidden until login)
+═══════════════════════════════════════════════════════════════════════════ -->
+<div id="app" style="display:none; width:100%">
+
+  <!-- ── Sidebar ── -->
+  <nav class="sidebar" id="sidebar">
+    <div class="sb-brand">
+      <div class="sb-logo">
+        <div class="sb-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
+          </svg>
+        </div>
+        <div class="sb-name">DTC</div>
+      </div>
+      <div class="sb-tag">Digital Tools Corner</div>
+    </div>
+
+    <div class="nav">
+      <div class="nav-sec">Main</div>
+      <div class="nav-item active" onclick="Shell.navigate('dashboard', this)">
+        <span class="icon">⚡</span>Dashboard
+      </div>
+      <div class="nav-item" onclick="Shell.navigate('customers', this); Customers.load()">
+        <span class="icon">👤</span>Customers
+        <span class="nav-badge" id="nb-exp" style="display:none">0</span>
+      </div>
+
+      <div class="nav-sec" style="margin-top:.5rem">Revenue</div>
+      <div class="nav-item" onclick="Shell.navigate('revenue', this)">
+        <span class="icon">💰</span>Revenue
+      </div>
+      <div class="nav-item" onclick="Shell.navigate('resellers', this)">
+        <span class="icon">🤝</span>Resellers
+      </div>
+      <div class="nav-sec" style="margin-top:.5rem">Catalogue</div>
+      <div class="nav-item" onclick="Shell.navigate('products', this)">
+        <span class="icon">📦</span>Products
+      </div>
+      <div class="nav-sec" style="margin-top:.5rem">Settings</div>
+      <div class="nav-item" onclick="Shell.navigate('instructions', this)">
+        <span class="icon">📋</span>Instructions
+      </div>
+      <div class="nav-item" onclick="Shell.navigate('notifications', this)">
+        <span class="icon">🔔</span>Notifications
+      </div>
+      <div class="nav-item" onclick="Shell.navigate('settings', this)">
+        <span class="icon">⚙</span>Settings
+      </div>
+      <div class="nav-item" onclick="Shell.navigate('campaigns', this)">
+        <span class="icon">📨</span>Email Campaigns
+      </div>
+      <div class="nav-item" onclick="Shell.navigate('email', this)">
+        <span class="icon">✉</span>Email Config
+      </div>
+      <div class="nav-sec" style="margin-top:.5rem">Website</div>
+      <div class="nav-item" onclick="Shell.navigate('website-editor', this); WebsiteEditor.load()">
+        <span class="icon">🌐</span>Page Editor
+      </div>
+    </div>
+
+    <div class="sb-footer">Admin Panel v3.0</div>
+  </nav>
+
+  <!-- ── Main ── -->
+  <main class="main">
+    <button class="mob-btn" id="mob-menu-btn">☰ Menu</button>
+
+    <!-- ── PAGE: Dashboard ── -->
+    <div class="page active" id="page-dashboard">
+      <div class="ph">
+        <div class="ph-title">Dashboard</div>
+        <div class="ph-sub">Generate activation links and review customer submissions.</div>
+      </div>
+
+      <!-- Generate card -->
+      <div class="card">
+        <div class="card-title">Generate Activation Link</div>
+
+        <div class="form-row">
+          <div class="form-group" style="margin-bottom:0">
+            <label>Customer Name</label>
+            <div id="cust-name-wrap">
+              <input type="text" id="cust-name" placeholder="e.g. Ahmed Khan" autocomplete="off"/>
+            </div>
+          </div>
+          <div class="form-group" style="margin-bottom:0">
+            <label>Product</label>
+            <select id="gen-product" onchange="Dashboard.onProductChange()">
+              <option value="">— Select Product —</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-row" style="margin-top:.7rem">
+          <div class="form-group" style="margin-bottom:0">
+            <label>Package</label>
+            <select id="pkg" onchange="Dashboard.onPackageChange()">
+              <option value="">— Select Package —</option>
+            </select>
+          </div>
+          <div class="form-group" style="margin-bottom:0">
+            <label id="gen-price-label">List Price <span id="gen-price-required" style="color:var(--error);font-size:.65rem;font-weight:400">* required</span></label>
+            <div class="price-input-wrap">
+              <span class="price-currency-icon" id="gen-currency-icon">$</span>
+              <input type="number" id="gen-price" min="0" step="0.01" placeholder="0.00" style="font-weight:700;color:var(--success)" oninput="Dashboard.onPriceInput()"/>
+            </div>
+          </div>
+        </div>
+
+        <!-- Payment details -->
+        <div style="margin-top:.7rem">
+          <details id="payment-details" style="background:#f8fafc;border:1px solid var(--border);border-radius:8px;padding:.5rem .8rem" open>
+            <summary style="font-size:.75rem;font-weight:600;color:var(--text);cursor:pointer;list-style:none">💳 Payment details</summary>
+            <div class="form-row" style="margin-top:.7rem;margin-bottom:0">
+              <div class="form-group" style="margin-bottom:0">
+                <label>Payment Method</label>
+                <select id="gen-payment-method">
+                  <option value="">— Not recorded —</option>
+                  <option value="wechat">WeChat Pay</option>
+                  <option value="alipay">Alipay</option>
+                  <option value="bank">Bank Transfer</option>
+                  <option value="cash">Cash</option>
+                  <option value="other">Other</option>
+                </select>
+              </div>
+              <div class="form-group" style="margin-bottom:0">
+                <label>Payment Reference <span style="font-weight:400;color:var(--muted)">receipt / order no.</span></label>
+                <input id="gen-payment-ref" placeholder="e.g. WX-20260401-0042"/>
+              </div>
+            </div>
+            <div class="form-row" style="margin-top:.6rem;margin-bottom:0">
+              <div class="form-group" style="margin-bottom:0">
+                <label>Discount Amount <span style="font-weight:400;color:var(--muted)">off list price</span></label>
+                <div class="price-input-wrap">
+                  <span class="price-currency-icon" id="gen-discount-icon">$</span>
+                  <input type="number" id="gen-discount" min="0" step="0.01" placeholder="0.00" oninput="Dashboard.onDiscountInput()"/>
+                </div>
+              </div>
+              <div class="form-group" style="margin-bottom:0">
+                <label>Discount Reason <span style="font-weight:400;color:var(--muted)">optional</span></label>
+                <input id="gen-discount-reason" placeholder="e.g. loyalty, promo, referral"/>
+              </div>
+            </div>
+            <!-- Effective price pill -->
+            <div id="gen-effective-wrap" style="display:none;margin-top:.6rem;padding:.45rem .75rem;background:var(--success-bg);border:1px solid var(--success-border);border-radius:7px;font-size:.75rem;align-items:center;justify-content:space-between">
+              <span style="color:var(--muted)">Effective price after discount:</span>
+              <strong id="gen-effective-price" style="color:var(--success);font-family:'JetBrains Mono',monospace">—</strong>
+            </div>
+            <!-- Free link toggle -->
+            <div style="margin-top:.75rem;display:flex;align-items:center;gap:.6rem">
+              <label class="toggle" style="margin-bottom:0">
+                <input type="checkbox" id="gen-is-free" onchange="Dashboard.onFreeToggle()"/>
+                <div class="toggle-track"><div class="toggle-thumb"></div></div>
+                <span style="font-size:.78rem;font-weight:600;color:var(--text);margin-left:.4rem">Free / Gifted Link</span>
+              </label>
+              <span style="font-size:.7rem;color:var(--muted)">Issue $0 access — tracked separately from paid revenue</span>
+            </div>
+          </details>
+        </div>
+
+        <div class="form-row" style="margin-top:.7rem">
+          <div class="form-group" style="margin-bottom:0">
+            <label>Pre-Activation Instructions</label>
+            <select id="gen-instr-set">
+              <option value="">— Default —</option>
+            </select>
+          </div>
+          <div class="form-group" style="margin-bottom:0">
+            <label>Post-Activation Instructions</label>
+            <select id="gen-post-instr-set">
+              <option value="">— Same as Pre —</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Reseller (optional) -->
+        <div style="margin-top:.5rem">
+          <details style="background:#f8fafc;border:1px solid var(--border);border-radius:8px;padding:.5rem .8rem">
+            <summary style="font-size:.75rem;font-weight:600;color:var(--muted);cursor:pointer;list-style:none">🤝 Reseller tracking (optional)</summary>
+            <div class="form-row" style="margin-top:.7rem;margin-bottom:0">
+              <div class="form-group" style="margin-bottom:0">
+                <label>Reseller ID</label>
+                <input id="gen-reseller-id" placeholder="e.g. reseller-ahmed"/>
+              </div>
+              <div class="form-group" style="margin-bottom:0">
+                <label>Reseller Name</label>
+                <input id="gen-reseller-name" placeholder="e.g. Ahmed Khan"/>
+              </div>
+            </div>
+          </details>
+        </div>
+
+        <button class="btn btn-primary" style="margin-top:.8rem" onclick="Dashboard.generateLink()">
+          ⚡ Generate Link
+        </button>
+        <div class="msg err" id="gen-err"></div>
+        <div class="link-result" id="link-result">
+          <div class="lr-label">✓ Link Ready — Share with customer</div>
+          <div class="lr-row">
+            <span class="lr-text" id="gen-link"></span>
+            <button class="copy-btn" id="copy-btn" onclick="Dashboard.copyGenLink()">Copy</button>
+          </div>
+          <div class="lr-note" id="link-result-note">⚠ This link is valid for <strong>6 months</strong>. &nbsp;|&nbsp; Price: <strong id="gen-price-display" style="color:var(--success)">—</strong></div>
+        </div>
+      </div>
+
+      <!-- Stats row -->
+      <div class="stats">
+        <div class="stat"><div class="stat-val" id="s-all">0</div><div class="stat-lbl">Total Links</div></div>
+        <div class="stat"><div class="stat-val sv-ind" id="s-pend">0</div><div class="stat-lbl">Not Opened</div></div>
+        <div class="stat"><div class="stat-val sv-blue" id="s-acc">0</div><div class="stat-lbl">Opened</div></div>
+        <div class="stat"><div class="stat-val sv-warn" id="s-sub">0</div><div class="stat-lbl">Submitted</div></div>
+        <div class="stat"><div class="stat-val sv-green" id="s-act">0</div><div class="stat-lbl">Activated</div></div>
+        <div class="stat"><div class="stat-val sv-red" id="s-exp">0</div><div class="stat-lbl">Expired / Declined</div></div>
+        <div class="stat"><div class="stat-val sv-green" id="s-rev">$0</div><div class="stat-lbl">Total Revenue</div></div>
+      </div>
+
+      <!-- Links table -->
+      <div class="card">
+        <div class="card-title">
+          <span>All Links</span>
+          <button class="btn btn-outline btn-sm" onclick="Dashboard.reload()">↻ Refresh</button>
+        </div>
+        <div class="filters" id="df">
+          <button class="fb active" onclick="Dashboard.setFilter('all',this)">All</button>
+          <button class="fb" onclick="Dashboard.setFilter('pending',this)">Not Opened</button>
+          <button class="fb" onclick="Dashboard.setFilter('accessed',this)">Opened</button>
+          <button class="fb" onclick="Dashboard.setFilter('submitted',this)">Submitted</button>
+          <button class="fb" onclick="Dashboard.setFilter('activated',this)">Activated</button>
+          <button class="fb" onclick="Dashboard.setFilter('declined',this)">Declined</button>
+          <button class="fb" onclick="Dashboard.setFilter('expired',this)">Expired</button>
+          <button class="fb" onclick="Dashboard.setFilter('deactivated',this)">Deactivated</button>
+        </div>
+        <div id="dash-tbl"><div class="empty">Click Refresh to load data.</div></div>
+      </div>
+    </div><!-- /page-dashboard -->
+
+
+    <!-- ── PAGE: Customers ── -->
+    <div class="page" id="page-customers">
+      <div class="ph">
+        <div class="ph-title">Customers</div>
+        <div class="ph-sub">All customers, active subscriptions, history, and payment records.</div>
+      </div>
+
+      <!-- List view -->
+      <div id="cust-list-view">
+        <div style="display:flex;align-items:center;gap:.7rem;flex-wrap:wrap;margin-bottom:1rem">
+          <div style="flex:1;min-width:180px">
+            <input id="cust-search" type="text" placeholder="Search customers…"
+              style="width:100%;padding:.5rem .85rem;font-size:.83rem;border:1.5px solid var(--border);border-radius:9px;background:var(--white);color:var(--text);outline:none;box-sizing:border-box"
+              oninput="Customers.onSearch(this.value)"/>
+          </div>
+          <button class="btn btn-primary" style="white-space:nowrap" onclick="Customers.openAdd()">+ Add Customer</button>
+        </div>
+        <div class="filters" id="cf" style="margin-bottom:1.2rem">
+          <button class="fb active" onclick="Customers.setFilter('all',this)">All</button>
+          <button class="fb" onclick="Customers.setFilter('active',this)">Active</button>
+          <button class="fb" onclick="Customers.setFilter('expiring',this)">Expiring Soon</button>
+          <button class="fb" onclick="Customers.setFilter('expired',this)">Expired</button>
+        </div>
+        <div id="cust-list"><div class="empty">Loading…</div></div>
+      </div>
+
+      <!-- Detail view (hidden until customer clicked) -->
+      <div id="cust-detail-view" style="display:none"></div>
+    </div><!-- /page-customers -->
+    <!-- ── PAGE: Instructions ── -->
+    <div class="page" id="page-instructions">
+      <div class="ph">
+        <div class="ph-title">Instructions</div>
+        <div class="ph-sub">Customise the messages customers see on the processing and approval screens.</div>
+      </div>
+      <button class="btn btn-primary" style="margin-bottom:1.2rem" onclick="Instructions.openModal()">
+        + New Instruction Set
+      </button>
+      <div id="instr-list"><div class="empty">Loading…</div></div>
+    </div><!-- /page-instructions -->
+
+
+    <!-- ── PAGE: Resellers ── -->
+    <div class="page" id="page-resellers">
+      <div class="ph">
+        <div class="ph-title">Resellers</div>
+        <div class="ph-sub">Track sales made through resellers separately from direct sales.</div>
+      </div>
+      <div class="stats" style="grid-template-columns:repeat(2,1fr);max-width:420px;margin-bottom:1.4rem">
+        <div class="stat"><div class="stat-val sv-ind" id="reseller-total">$0</div><div class="stat-lbl">Reseller Revenue</div></div>
+        <div class="stat"><div class="stat-val sv-blue" id="direct-total">$0</div><div class="stat-lbl">Direct Revenue</div></div>
+      </div>
+      <div id="reseller-breakdown"><div class="empty">Loading…</div></div>
+    </div><!-- /page-resellers -->
+
+    <!-- ── PAGE: Revenue ── -->
+    <div class="page" id="page-revenue">
+      <div class="ph">
+        <div class="ph-title">Revenue</div>
+        <div class="ph-sub">Track total earnings, refunds, and per-product revenue. Deactivated and refunded subscriptions are automatically excluded.</div>
+      </div>
+      <div class="card" style="margin-bottom:1.2rem">
+        <div style="display:flex;align-items:flex-end;gap:2rem;flex-wrap:wrap">
+          <div><div class="rev-big" id="rev-total">$0.00</div><div class="rev-big-label">Net Revenue (excl. deactivated &amp; refunded)</div></div>
+          <div><div class="rev-big" id="rev-refunded" style="color:var(--error);font-size:1.5rem">$0.00</div><div class="rev-big-label" style="color:var(--error)">Total Refunded</div></div>
+        </div>
+      </div>
+      <div id="rev-breakdown"><div class="empty">Loading…</div></div>
+    </div><!-- /page-revenue -->
+
+    <!-- ── PAGE: Products ── -->
+    <div class="page" id="page-products">
+      <div class="ph">
+        <div class="ph-title">Products</div>
+        <div class="ph-sub">Manage your product catalogue, packages, prices, and credential details.</div>
+      </div>
+      <button class="btn btn-primary" style="margin-bottom:1.2rem" onclick="Products.openModal()">+ New Product</button>
+      <div id="products-list"><div class="empty">Loading…</div></div>
+    </div><!-- /page-products -->
+
+    <!-- ── PAGE: Notifications ── -->
+    <div class="page" id="page-notifications">
+      <div class="ph">
+        <div class="ph-title">Notifications</div>
+        <div class="ph-sub">Show a banner message to customers when they visit their activation page.</div>
+      </div>
+      <div class="card">
+        <div class="card-title">
+          <span>Banner Message</span>
+          <label class="toggle" style="margin-bottom:0">
+            <input type="checkbox" id="notif-enabled"/>
+            <div class="toggle-track"><div class="toggle-thumb"></div></div>
+            <span style="font-size:.78rem;color:var(--text);margin-left:.4rem;font-weight:600">Enabled</span>
+          </label>
+        </div>
+        <div class="form-group">
+          <label>Message</label>
+          <input id="notif-message" placeholder="e.g. We are experiencing high demand. Processing may take up to 24 hours." style="font-size:.85rem"/>
+        </div>
+        <div class="form-group">
+          <label>Type</label>
+          <select id="notif-type" onchange="Notifications.init()">
+            <option value="info">ℹ Info (blue)</option>
+            <option value="success">✓ Success (green)</option>
+            <option value="warning">⚠ Warning (yellow)</option>
+            <option value="error">⚠ Alert (red)</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Preview</label>
+          <div id="notif-preview" style="display:none"></div>
+          <div style="font-size:.72rem;color:var(--muted2);margin-top:.4rem">Enable the toggle and enter a message to see the preview.</div>
+        </div>
+        <button class="btn btn-primary" onclick="Notifications.save()">Save Notification</button>
+        <div class="msg ok" id="notif-ok"></div>
+        <div class="msg err" id="notif-err"></div>
+      </div>
+    </div><!-- /page-notifications -->
+
+    <!-- ── PAGE: Email Campaigns ── -->
+    <div class="page" id="page-campaigns">
+      <div class="ph">
+        <div class="ph-title">Email Campaigns</div>
+        <div class="ph-sub">Compose and send personalised emails to your customers. Use templates or write custom messages.</div>
+      </div>
+
+      <div class="email-layout">
+
+        <!-- Template list -->
+        <div class="tmpl-panel">
+          <div class="tmpl-panel-title">Templates</div>
+          <div id="template-list"><div class="empty" style="padding:1rem 0;font-size:.76rem">Loading…</div></div>
+        </div>
+
+        <!-- Compose -->
+        <div class="compose-panel">
+          <div class="compose-panel-title">
+            <span>Compose Message</span>
+          </div>
+
+          <!-- Recipient filter -->
+          <div class="recipient-bar">
+            <label style="font-size:.75rem;font-weight:600;color:var(--text);margin-bottom:0;white-space:nowrap">Send to:</label>
+            <select id="recipient-filter" onchange="BulkEmail.render()" style="flex:1;padding:.4rem .7rem;font-size:.8rem;border:1.5px solid var(--border);border-radius:7px;background:var(--white);outline:none;min-width:160px">
+              <option value="none">— Extra recipients only —</option>
+              <option value="all-with-email">Everyone with an email</option>
+              <option value="activated">Active subscribers only</option>
+              <option value="expiring">Expiring within 30 days</option>
+              <option value="expired">Expired subscriptions</option>
+              <option value="submitted">Submitted, awaiting approval</option>
+            </select>
+            <span class="recipient-count-badge" id="recipient-count">0 recipients</span>
+          </div>
+
+          <!-- Extra recipients (freeform) -->
+          <div style="margin-bottom:.85rem">
+            <div style="font-size:.68rem;font-weight:600;color:var(--muted);margin-bottom:.35rem;text-transform:uppercase;letter-spacing:.07em;display:flex;align-items:center;justify-content:space-between">
+              <span>Extra recipients <span style="font-weight:400;color:var(--muted2)">(not in database — campaigns, leads, etc.)</span></span>
+              <button class="btn btn-ghost-blue btn-sm" onclick="BulkEmail.importExtraCsv()" style="font-size:.63rem">Paste CSV</button>
+            </div>
+
+            <!-- Tag list of added emails -->
+            <div id="extra-tags" style="display:flex;flex-wrap:wrap;gap:.3rem;margin-bottom:.4rem;min-height:.1rem"></div>
+
+            <!-- Add row -->
+            <div style="display:flex;gap:.4rem;align-items:center">
+              <input type="text" id="extra-name" placeholder="Name (optional)" style="width:130px;padding:.38rem .6rem;font-size:.78rem;border:1.5px solid var(--border);border-radius:7px;background:var(--white);color:var(--text);outline:none"/>
+              <input type="email" id="extra-email" placeholder="email@example.com" style="flex:1;padding:.38rem .6rem;font-size:.78rem;border:1.5px solid var(--border);border-radius:7px;background:var(--white);color:var(--text);outline:none" onkeydown="if(event.key==='Enter'){event.preventDefault();BulkEmail.addExtra();}"/>
+              <button class="btn btn-outline btn-sm" onclick="BulkEmail.addExtra()" style="white-space:nowrap;padding:.38rem .75rem">+ Add</button>
+            </div>
+            <div style="font-size:.67rem;color:var(--muted2);margin-top:.3rem">Press Enter or click Add. Duplicates are skipped automatically. Use "Paste CSV" for bulk import.</div>
+          </div>
+
+          <!-- Template type indicator -->
+          <div id="template-type-note" style="display:none;margin-bottom:.6rem"></div>
+
+          <!-- Quick template load dropdown -->
+          <div class="form-group" style="margin-bottom:.8rem">
+            <label>Load Template</label>
+            <div style="display:flex;gap:.5rem">
+              <select id="bulk-template-select" style="flex:1;padding:.5rem .8rem;font-size:.82rem;border:1.5px solid var(--border);border-radius:8px;background:var(--white);outline:none">
+                <option value="">— Select a template to load —</option>
+              </select>
+              <button class="btn btn-ghost-blue btn-sm" onclick="BulkEmail.loadSelectedTemplate()" style="white-space:nowrap">Load →</button>
+            </div>
+          </div>
+
+          <!-- Subject -->
+          <div class="form-group">
+            <label>Subject</label>
+            <input id="compose-subject" placeholder="e.g. Your subscription is expiring soon — DTC"/>
+          </div>
+
+          <!-- Variable chips -->
+          <div style="margin-bottom:.5rem">
+            <div style="font-size:.68rem;font-weight:600;color:var(--muted);margin-bottom:.35rem;text-transform:uppercase;letter-spacing:.07em">Insert variable</div>
+            <div class="var-chips">
+              <span class="var-chip" onclick="BulkEmail.insertVar('{{name}}')">{{name}}</span>
+              <span class="var-chip" onclick="BulkEmail.insertVar('{{package}}')">{{package}}</span>
+              <span class="var-chip" onclick="BulkEmail.insertVar('{{product}}')">{{product}}</span>
+              <span class="var-chip" onclick="BulkEmail.insertVar('{{expiry}}')">{{expiry}}</span>
+              <span class="var-chip" onclick="BulkEmail.insertVar('{{daysLeft}}')">{{daysLeft}}</span>
+              <span class="var-chip" onclick="BulkEmail.insertVar('{{email}}')">{{email}}</span>
+              <span class="var-chip" onclick="BulkEmail.insertVar('{{wechat}}')">{{wechat}}</span>
+            </div>
+          </div>
+
+          <!-- Body -->
+          <div class="form-group" style="margin-bottom:.6rem">
+            <label>
+              Body
+              <span style="font-weight:400;color:var(--muted);margin-left:.4rem">HTML supported — use &lt;p&gt;, &lt;strong&gt;, &lt;a href&gt;, etc.</span>
+            </label>
+            <textarea class="compose-textarea" id="compose-body" placeholder="Write your email here. HTML is supported.&#10;&#10;Example:&#10;&lt;p&gt;Hi {{name}},&lt;/p&gt;&#10;&lt;p&gt;Your &lt;strong&gt;{{package}}&lt;/strong&gt; subscription...&lt;/p&gt;"></textarea>
+          </div>
+
+          <div class="send-bar">
+            <button class="btn-send" id="send-bulk-btn" onclick="BulkEmail.send()">
+              Send Email
+            </button>
+            <button class="btn btn-outline" onclick="BulkEmail.newTemplate()">Save as Template</button>
+            <button class="btn btn-outline btn-sm" onclick="BulkEmail.render()">↻ Refresh count</button>
+          </div>
+          <div class="msg ok" id="bulk-ok" style="margin-top:.7rem"></div>
+          <div class="msg err" id="bulk-err" style="margin-top:.7rem"></div>
+        </div>
+
+        <!-- Live preview -->
+        <div class="preview-panel">
+          <div class="preview-panel-title">
+            Live Preview
+            <span class="preview-sample" id="preview-sample-label">sample: Ahmed Khan</span>
+          </div>
+          <iframe id="email-preview-frame" sandbox="allow-same-origin" title="Email Preview"></iframe>
+          <div style="font-size:.68rem;color:var(--muted2);margin-top:.5rem;line-height:1.5">Variables are filled with sample data. Real emails are personalised per recipient.</div>
+        </div>
+
+      </div>
+    </div><!-- /page-campaigns -->
+
+    <!-- ── PAGE: Settings ── -->
+    <div class="page" id="page-settings">
+      <div class="ph">
+        <div class="ph-title">Settings</div>
+        <div class="ph-sub">Configure currency, automatic emails, and global preferences.</div>
+      </div>
+
+      <div class="setting-block">
+        <div class="setting-block-title">Currency</div>
+        <div class="setting-block-sub">Choose the currency shown in admin and on receipts. This applies to all new links. Existing links keep their original currency.</div>
+        <div class="form-row">
+          <div class="form-group" style="margin-bottom:0">
+            <label>Currency</label>
+            <select id="currency-select"></select>
+          </div>
+          <div class="form-group" style="margin-bottom:0;display:flex;align-items:flex-end">
+            <div style="font-size:.8rem;color:var(--muted);background:#f8fafc;border:1px solid var(--border);border-radius:8px;padding:.6rem .9rem" id="currency-preview">Example: $29.99</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="setting-block">
+        <div class="setting-block-title">Activation Email</div>
+        <div class="setting-block-sub">Automatically send this email template to the customer when you approve their link. Leave blank to disable auto-send.</div>
+        <div class="form-group" style="margin-bottom:0">
+          <label>Email Template to Send on Approval</label>
+          <select id="activation-template-select">
+            <option value="">— No auto email —</option>
+          </select>
+        </div>
+      </div>
+
+      <button class="btn btn-primary" onclick="Settings.save()">Save Settings</button>
+      <div class="msg ok" id="settings-ok"></div>
+      <div class="msg err" id="settings-err"></div>
+    </div><!-- /page-settings -->
+
+    <!-- ── PAGE: Email Config ── -->
+    <div class="page" id="page-email">
+      <div class="ph">
+        <div class="ph-title">Email Configuration</div>
+        <div class="ph-sub">Set up SMTP to send automatic renewal reminders and expiry notices.</div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">SMTP Settings</div>
+        <div class="provider-btns">
+          <span style="font-size:.72rem;color:var(--muted);font-weight:500;align-self:center;margin-right:.2rem">Quick setup:</span>
+          <button class="btn btn-outline btn-sm" onclick="EmailConfig.applyPreset('gmail')">Gmail</button>
+          <button class="btn btn-outline btn-sm" onclick="EmailConfig.applyPreset('outlook')">Outlook</button>
+          <button class="btn btn-outline btn-sm" onclick="EmailConfig.applyPreset('yahoo')">Yahoo</button>
+          <button class="btn btn-outline btn-sm" onclick="EmailConfig.applyPreset('brevo')">Brevo (free)</button>
+          <button class="btn btn-outline btn-sm" onclick="EmailConfig.applyPreset('sendgrid')">SendGrid (free)</button>
+        </div>
+        <div class="gmail-guide" id="gmail-guide">
+          <strong style="color:var(--warn);display:block;margin-bottom:.4rem">⚠ Gmail requires an App Password</strong>
+          <ol style="padding-left:1.3rem;color:var(--muted)">
+            <li>Go to <strong>myaccount.google.com</strong> → Security</li>
+            <li>Enable <strong>2-Step Verification</strong></li>
+            <li>Search <strong>App Passwords</strong> → Create one named "DTC Portal"</li>
+            <li>Paste the 16-character password into the Password field below</li>
+          </ol>
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label>SMTP Host</label><input id="em-host" placeholder="smtp.gmail.com"/></div>
+          <div class="form-group"><label>Port</label><input id="em-port" placeholder="587"/></div>
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label>Email Address</label><input type="email" id="em-user" placeholder="you@gmail.com"/></div>
+          <div class="form-group"><label>App Password</label><input type="password" id="em-pass" placeholder="••••••••••"/></div>
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label>Sender Name</label><input id="em-name" placeholder="DTC Digital Tools Corner"/></div>
+          <div class="form-group" style="display:flex;align-items:flex-end;padding-bottom:.1rem">
+            <label class="toggle">
+              <input type="checkbox" id="em-ssl"/>
+              <div class="toggle-track"><div class="toggle-thumb"></div></div>
+              <span style="font-size:.82rem;color:var(--text);margin-left:.4rem;font-weight:500">SSL (port 465)</span>
+            </label>
+          </div>
+        </div>
+        <div style="display:flex;gap:.6rem;flex-wrap:wrap">
+          <button class="btn btn-primary" onclick="EmailConfig.save()">Save Configuration</button>
+          <button class="btn btn-outline" onclick="EmailConfig.sendTest()"><span id="test-txt">Send Test Email</span></button>
+        </div>
+        <div class="msg ok" id="em-ok"></div>
+        <div class="msg err" id="em-err"></div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Email Log</div>
+        <div id="email-log-wrap"><div class="empty">No emails sent yet.</div></div>
+      </div>
+    </div><!-- /page-email -->
+
+
+    <!-- ── PAGE: Website Editor ── -->
+    <div class="page" id="page-website-editor">
+      <div class="ph">
+        <div class="ph-title">Website Page Editor</div>
+        <div class="ph-sub">Edit every section of your landing page. Changes go live instantly when you save.</div>
+      </div>
+
+      <!-- Push Notification panel -->
+      <div class="card" style="margin-bottom:1.2rem">
+        <div class="card-title">
+          <span>🔔 Push Notification Banner</span>
+          <label class="toggle" style="margin-bottom:0">
+            <input type="checkbox" id="we-notif-enabled" onchange="WebsiteEditor.previewNotif()"/>
+            <div class="toggle-track"><div class="toggle-thumb"></div></div>
+            <span style="font-size:.78rem;color:var(--text);margin-left:.4rem;font-weight:600">Show on landing page</span>
+          </label>
+        </div>
+        <div class="form-row">
+          <div class="form-group" style="margin-bottom:0;flex:1">
+            <label>Message</label>
+            <input id="we-notif-msg" placeholder="e.g. 🎉 Special offer this week — contact us now!" oninput="WebsiteEditor.previewNotif()"/>
+          </div>
+          <div class="form-group" style="margin-bottom:0">
+            <label>Type</label>
+            <select id="we-notif-type" onchange="WebsiteEditor.previewNotif()">
+              <option value="info">ℹ Info (blue)</option>
+              <option value="success">✓ Success (green)</option>
+              <option value="warning">⚠ Warning (amber)</option>
+              <option value="error">🚨 Alert (red)</option>
+            </select>
+          </div>
+        </div>
+        <div id="we-notif-preview" style="display:none;margin-top:.7rem;padding:.65rem 1rem;border-radius:8px;font-size:.82rem;font-weight:500"></div>
+        <button class="btn btn-primary" style="margin-top:.9rem" onclick="WebsiteEditor.saveNotif()">Save &amp; Publish Notification</button>
+        <div class="msg ok" id="we-notif-ok"></div>
+      </div>
+
+      <!-- Section tabs -->
+      <div class="filters" id="we-tabs" style="margin-bottom:1.2rem">
+        <button class="fb active" onclick="WebsiteEditor.showTab('hero',this)">Hero</button>
+        <button class="fb" onclick="WebsiteEditor.showTab('contact',this)">Contact Info</button>
+        <button class="fb" onclick="WebsiteEditor.showTab('how',this)">How It Works</button>
+        <button class="fb" onclick="WebsiteEditor.showTab('why',this)">Why DTC</button>
+        <button class="fb" onclick="WebsiteEditor.showTab('reviews',this)">Reviews</button>
+        <button class="fb" onclick="WebsiteEditor.showTab('faq',this)">FAQ</button>
+        <button class="fb" onclick="WebsiteEditor.showTab('footer',this)">Footer</button>
+      </div>
+
+      <!-- Hero tab -->
+      <div class="we-tab" id="we-tab-hero">
+        <div class="card">
+          <div class="card-title">Hero Section</div>
+          <div class="form-group"><label>Badge Text</label><input id="we-hero-badge" placeholder="Trusted by hundreds of customers across China"/></div>
+          <div class="form-row">
+            <div class="form-group" style="margin-bottom:0"><label>Headline</label><input id="we-hero-headline" placeholder="Premium AI Tools,"/></div>
+            <div class="form-group" style="margin-bottom:0"><label>Headline Highlight <span style="font-weight:400;color:var(--muted)">(gradient text)</span></label><input id="we-hero-highlight" placeholder="Activated Today"/></div>
+          </div>
+          <div class="form-group"><label>Subtext</label><textarea id="we-hero-sub" rows="3" style="resize:vertical;font-family:'Inter',sans-serif;font-size:.83rem"></textarea></div>
+          <div class="form-row">
+            <div class="form-group" style="margin-bottom:0"><label>Primary CTA Button</label><input id="we-hero-cta1" placeholder="Contact Us Now"/></div>
+            <div class="form-group" style="margin-bottom:0"><label>Secondary CTA Button</label><input id="we-hero-cta2" placeholder="View Pricing"/></div>
+          </div>
+          <div class="form-group" style="margin-top:.7rem"><label>Trust Items <span style="font-weight:400;color:var(--muted)">one per line</span></label><textarea id="we-hero-trust" rows="4" style="resize:vertical;font-family:'Inter',sans-serif;font-size:.83rem;font-family:'JetBrains Mono',monospace"></textarea></div>
+          <div class="card-title" style="margin-top:1rem;font-size:.78rem">Stats Bar</div>
+          <div id="we-stats-rows"></div>
+          <button class="btn btn-ghost" style="margin-top:.5rem;font-size:.78rem" onclick="WebsiteEditor.addStat()">+ Add Stat</button>
+        </div>
+      </div>
+
+      <!-- Contact tab -->
+      <div class="we-tab" id="we-tab-contact" style="display:none">
+        <div class="card">
+          <div class="card-title">Contact Information</div>
+          <div class="form-row">
+            <div class="form-group" style="margin-bottom:0"><label>Section Label</label><input id="we-ct-label" placeholder="Get In Touch"/></div>
+            <div class="form-group" style="margin-bottom:0"><label>WeChat ID</label><input id="we-ct-wechat" placeholder="dtc_digitaltools"/></div>
+          </div>
+          <div class="form-row" style="margin-top:.7rem">
+            <div class="form-group" style="margin-bottom:0"><label>WhatsApp Number</label><input id="we-ct-whatsapp" placeholder="+86 197 3812 2807"/></div>
+            <div class="form-group" style="margin-bottom:0"><label>WhatsApp Link</label><input id="we-ct-walink" placeholder="https://wa.me/8619738122807"/></div>
+          </div>
+          <div class="form-group" style="margin-top:.7rem"><label>Email</label><input type="email" id="we-ct-email" placeholder="dtc@dtc1.shop"/></div>
+          <div class="form-group"><label>Section Title</label><input id="we-ct-title" placeholder="Ready to get started? We're here to help."/></div>
+          <div class="form-group"><label>Section Subtitle</label><textarea id="we-ct-sub" rows="2" style="resize:vertical;font-family:'Inter',sans-serif;font-size:.83rem"></textarea></div>
+          <div class="form-group"><label>CTA Note</label><input id="we-ct-note" placeholder="Not sure which plan is right for you? Message us…"/></div>
+        </div>
+      </div>
+
+      <!-- How It Works tab -->
+      <div class="we-tab" id="we-tab-how" style="display:none">
+        <div class="card">
+          <div class="card-title">How It Works</div>
+          <div class="form-row">
+            <div class="form-group" style="margin-bottom:0"><label>Section Label</label><input id="we-how-label" placeholder="Process"/></div>
+            <div class="form-group" style="margin-bottom:0"><label>Title</label><input id="we-how-title" placeholder="Up and running in 4 simple steps"/></div>
+          </div>
+          <div class="form-group" style="margin-top:.7rem"><label>Subtitle</label><input id="we-how-sub" placeholder="From first contact to…"/></div>
+          <div id="we-steps-rows" style="margin-top:.5rem"></div>
+          <button class="btn btn-ghost" style="margin-top:.5rem;font-size:.78rem" onclick="WebsiteEditor.addStep()">+ Add Step</button>
+        </div>
+      </div>
+
+      <!-- Why DTC tab -->
+      <div class="we-tab" id="we-tab-why" style="display:none">
+        <div class="card">
+          <div class="card-title">Why DTC Cards</div>
+          <div class="form-row">
+            <div class="form-group" style="margin-bottom:0"><label>Section Label</label><input id="we-why-label" placeholder="Why Choose DTC"/></div>
+            <div class="form-group" style="margin-bottom:0"><label>Title</label><input id="we-why-title" placeholder="Built around making your experience effortless"/></div>
+          </div>
+          <div class="form-group" style="margin-top:.7rem"><label>Subtitle</label><input id="we-why-sub" placeholder="We've served hundreds of customers…"/></div>
+          <div id="we-why-rows" style="margin-top:.5rem"></div>
+          <button class="btn btn-ghost" style="margin-top:.5rem;font-size:.78rem" onclick="WebsiteEditor.addWhy()">+ Add Card</button>
+        </div>
+      </div>
+
+      <!-- Reviews tab -->
+      <div class="we-tab" id="we-tab-reviews" style="display:none">
+        <div class="card">
+          <div class="card-title">Customer Reviews</div>
+          <div class="form-row">
+            <div class="form-group" style="margin-bottom:0"><label>Section Label</label><input id="we-rev-label" placeholder="Customer Reviews"/></div>
+            <div class="form-group" style="margin-bottom:0"><label>Title</label><input id="we-rev-title" placeholder="What our customers say"/></div>
+          </div>
+          <div id="we-review-rows" style="margin-top:.9rem"></div>
+          <button class="btn btn-ghost" style="margin-top:.5rem;font-size:.78rem" onclick="WebsiteEditor.addReview()">+ Add Review</button>
+        </div>
+      </div>
+
+      <!-- FAQ tab -->
+      <div class="we-tab" id="we-tab-faq" style="display:none">
+        <div class="card">
+          <div class="card-title">FAQ</div>
+          <div class="form-row">
+            <div class="form-group" style="margin-bottom:0"><label>Section Label</label><input id="we-faq-label" placeholder="FAQ"/></div>
+            <div class="form-group" style="margin-bottom:0"><label>Title</label><input id="we-faq-title" placeholder="Common questions"/></div>
+          </div>
+          <div id="we-faq-rows" style="margin-top:.9rem"></div>
+          <button class="btn btn-ghost" style="margin-top:.5rem;font-size:.78rem" onclick="WebsiteEditor.addFaq()">+ Add FAQ</button>
+        </div>
+      </div>
+
+      <!-- Footer tab -->
+      <div class="we-tab" id="we-tab-footer" style="display:none">
+        <div class="card">
+          <div class="card-title">Footer</div>
+          <div class="form-group"><label>Brand Name</label><input id="we-ft-brand" placeholder="Digital Tools Corner"/></div>
+          <div class="form-group"><label>Copyright Text</label><input id="we-ft-copy" placeholder="© 2026 DTC Digital Tools Corner…"/></div>
+          <div class="form-group"><label>Nav Links <span style="font-weight:400;color:var(--muted)">one per line</span></label><textarea id="we-ft-links" rows="6" style="resize:vertical;font-family:'JetBrains Mono',monospace;font-size:.8rem"></textarea></div>
+        </div>
+      </div>
+
+      <!-- Save button (always visible) -->
+      <div style="display:flex;gap:.7rem;align-items:center;margin-top:1rem;flex-wrap:wrap">
+        <button class="btn btn-primary" onclick="WebsiteEditor.save()">💾 Save &amp; Publish</button>
+        <button class="btn btn-outline" onclick="window.open('/','_blank')">🌐 Preview Site</button>
+      </div>
+      <div class="msg ok" id="we-ok" style="margin-top:.6rem"></div>
+      <div class="msg err" id="we-err" style="margin-top:.6rem"></div>
+    </div><!-- /page-website-editor -->
+
+  </main>
+</div><!-- /app -->
+
+
+<!-- ══════════════════════════════════════════════════════════════════════════
+     MODALS
+═══════════════════════════════════════════════════════════════════════════ -->
+
+<!-- Customer Add/Edit Modal -->
+<div class="modal-overlay" id="cust-modal">
+  <div class="modal" style="max-width:480px">
+    <div class="modal-title" id="cust-modal-title">Add Customer</div>
+    <div class="modal-sub">Customer profiles group all links and subscriptions in one place.</div>
+    <input type="hidden" id="cust-modal-id"/>
+    <div class="form-group">
+      <label>Name <span style="color:var(--error)">*</span></label>
+      <input id="cust-modal-name" placeholder="e.g. Ahmed Khan"/>
+    </div>
+    <div class="form-row">
+      <div class="form-group" style="margin-bottom:0">
+        <label>Email <span style="font-weight:400;color:var(--muted)">optional</span></label>
+        <input type="email" id="cust-modal-email" placeholder="customer@email.com"/>
+      </div>
+      <div class="form-group" style="margin-bottom:0">
+        <label>WeChat ID <span style="font-weight:400;color:var(--muted)">optional</span></label>
+        <input id="cust-modal-wechat" placeholder="wechat_handle"/>
+      </div>
+    </div>
+    <div class="form-group">
+      <label>Notes <span style="font-weight:400;color:var(--muted)">optional</span></label>
+      <textarea id="cust-modal-notes" rows="2" placeholder="Internal notes about this customer…" style="resize:vertical;font-family:'Inter',sans-serif;font-size:.83rem"></textarea>
+    </div>
+    <div class="msg err" id="cust-modal-err" style="margin-bottom:.5rem"></div>
+    <div class="modal-actions">
+      <button class="btn btn-outline" onclick="Customers.closeModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="Customers.saveModal()">Save Customer</button>
+    </div>
+  </div>
+</div>
+
+<!-- Refund Modal -->
+<div class="modal-overlay" id="refund-modal">
+  <div class="modal" style="max-width:460px">
+    <div class="modal-title">Issue Refund</div>
+    <div class="modal-sub">This will mark the subscription as refunded and remove it from revenue totals. The link will also be deactivated.</div>
+    <input type="hidden" id="refund-token"/>
+    <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:.75rem 1rem;margin-bottom:1rem;font-size:.8rem">
+      <div style="font-weight:700;color:var(--text);margin-bottom:.2rem" id="refund-product"></div>
+      <div style="color:var(--muted)">Amount paid: <strong id="refund-paid" style="color:var(--text)"></strong></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group" style="margin-bottom:0">
+        <label>Refund Amount</label>
+        <input type="number" id="refund-amount" min="0" step="0.01" placeholder="0.00"/>
+      </div>
+      <div class="form-group" style="margin-bottom:0">
+        <label>Refund Method</label>
+        <select id="refund-method">
+          <option value="">— Same as payment —</option>
+          <option value="wechat">WeChat Pay</option>
+          <option value="alipay">Alipay</option>
+          <option value="bank">Bank Transfer</option>
+          <option value="cash">Cash</option>
+          <option value="other">Other</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-group" style="margin-top:.7rem">
+      <label>Refund Reason <span style="color:var(--error)">*</span></label>
+      <textarea id="refund-reason" rows="2" placeholder="e.g. Customer requested refund — subscription not needed" style="resize:vertical;font-family:'Inter',sans-serif;font-size:.83rem"></textarea>
+    </div>
+    <div class="msg err" id="refund-err" style="margin-bottom:.5rem"></div>
+    <div class="modal-actions">
+      <button class="btn btn-outline" onclick="Customers.closeRefund()">Cancel</button>
+      <button class="btn btn-danger" onclick="Customers.confirmRefund()">Confirm Refund</button>
+    </div>
+  </div>
+</div>
+
+<!-- Payment Edit Modal -->
+<div class="modal-overlay" id="pe-modal">
+  <div class="modal" style="max-width:520px">
+    <div class="modal-title">Edit Payment Details</div>
+    <div class="modal-sub">Update the payment record for this subscription. Changes are reflected immediately in revenue calculations.</div>
+    <input type="hidden" id="pe-token"/>
+    <div class="form-row">
+      <div class="form-group" style="margin-bottom:0">
+        <label>Payment Method</label>
+        <select id="pe-method">
+          <option value="">— Not recorded —</option>
+          <option value="wechat">WeChat Pay</option>
+          <option value="alipay">Alipay</option>
+          <option value="bank">Bank Transfer</option>
+          <option value="cash">Cash</option>
+          <option value="other">Other</option>
+        </select>
+      </div>
+      <div class="form-group" style="margin-bottom:0">
+        <label>Payment Reference</label>
+        <input id="pe-ref" placeholder="e.g. WX-20260401-0042"/>
+      </div>
+    </div>
+    <div class="form-row" style="margin-top:.65rem">
+      <div class="form-group" style="margin-bottom:0">
+        <label>Amount Paid <span style="font-weight:400;color:var(--muted)">override</span></label>
+        <input type="number" id="pe-price" min="0" step="0.01" placeholder="0.00"/>
+      </div>
+      <div class="form-group" style="margin-bottom:0">
+        <label>Discount Amount</label>
+        <input type="number" id="pe-discount" min="0" step="0.01" placeholder="0.00"/>
+      </div>
+    </div>
+    <div class="form-group" style="margin-top:.65rem">
+      <label>Discount Reason <span style="font-weight:400;color:var(--muted)">optional</span></label>
+      <input id="pe-disc-reason" placeholder="e.g. loyalty, promo, referral"/>
+    </div>
+    <div class="form-group">
+      <label>Admin Notes <span style="font-weight:400;color:var(--muted)">internal only</span></label>
+      <textarea id="pe-notes" rows="2" placeholder="Internal notes about this payment…" style="resize:vertical;font-family:'Inter',sans-serif;font-size:.83rem"></textarea>
+    </div>
+    <div class="msg err" id="pe-err" style="margin-bottom:.5rem"></div>
+    <div class="modal-actions">
+      <button class="btn btn-outline" onclick="Customers.closePaymentEdit()">Cancel</button>
+      <button class="btn btn-primary" onclick="Customers.confirmPaymentEdit()">Save Payment Details</button>
+    </div>
+  </div>
+</div>
+
+<!-- Decline -->
+<div class="modal-overlay" id="decline-modal">
+  <div class="modal">
+    <div class="modal-title">Decline Activation Request</div>
+    <div class="modal-sub">Provide a reason so the customer knows what to correct.</div>
+    <input type="hidden" id="decline-token"/>
+    <div class="form-group">
+      <label>Decline Reason</label>
+      <textarea id="decline-reason" rows="3" placeholder="e.g. The details could not be verified. Please resubmit."></textarea>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-outline" onclick="Modals.closeDecline()">Cancel</button>
+      <button class="btn btn-danger"  onclick="Modals.confirmDecline()">Decline Request</button>
+    </div>
+  </div>
+</div>
+
+<!-- Session Data Viewer -->
+<div class="modal-overlay" id="session-modal">
+  <div class="modal">
+    <div class="modal-title">ChatGPT Session Data</div>
+    <div class="modal-sub">Full session JSON submitted by customer.</div>
+    <textarea id="session-modal-content" rows="10"
+      style="font-family:'JetBrains Mono',monospace;font-size:.72rem;resize:vertical" readonly></textarea>
+    <div class="modal-actions">
+      <button class="btn btn-outline" onclick="Modals.closeSession()">Close</button>
+      <button class="btn btn-primary" onclick="Modals.copySession()">Copy Data</button>
+    </div>
+  </div>
+</div>
+
+<!-- Instruction Set Editor -->
+<div class="modal-overlay" id="instr-modal">
+  <div class="modal" style="max-width:600px">
+    <div class="modal-title" id="instr-modal-title">New Instruction Set</div>
+    <div class="modal-sub">These messages are shown to customers on the processing and approved screens for each link.</div>
+    <input type="hidden" id="instr-id"/>
+    <div class="form-group">
+      <label>Name</label>
+      <input id="instr-name" placeholder="e.g. Claude Pro — Custom"/>
+    </div>
+
+    <span class="modal-section-label">📋 Pre-Activation — shown while processing &amp; on approval</span>
+    <div class="form-group">
+      <label>Processing Page Message</label>
+      <textarea id="instr-processing" rows="2" placeholder="Message shown while the order is being reviewed…"></textarea>
+    </div>
+    <div class="form-group">
+      <label>Approved Page Message</label>
+      <textarea id="instr-approved" rows="2" placeholder="Message shown after approval…"></textarea>
+    </div>
+    <div class="form-group">
+      <label>Verification Steps <span style="font-weight:400;color:var(--muted)">(one per line)</span></label>
+      <textarea id="instr-steps" rows="4" placeholder="Step 1&#10;Step 2&#10;Step 3"></textarea>
+    </div>
+
+    <span class="modal-section-label">🚀 Post-Activation — shown in the "Getting Started" section</span>
+    <div class="form-group">
+      <label>Post-Activation Message</label>
+      <textarea id="instr-post-approved" rows="2" placeholder="Message shown in the Getting Started section after activation…"></textarea>
+    </div>
+    <div class="form-group">
+      <label>Getting Started Steps <span style="font-weight:400;color:var(--muted)">(one per line)</span></label>
+      <textarea id="instr-post-steps" rows="4" placeholder="Step 1&#10;Step 2&#10;Step 3"></textarea>
+    </div>
+    <div class="msg err" id="instr-err"></div>
+    <div class="modal-actions">
+      <button class="btn btn-outline" onclick="Instructions.closeModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="Instructions.save()">Save Instruction Set</button>
+    </div>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════════════════════════════════════
+     JAVASCRIPT — load in dependency order
+═══════════════════════════════════════════════════════════════════════════ -->
+<!-- Template Editor Modal -->
+<div class="modal-overlay" id="teditor-modal">
+  <div class="modal" style="max-width:620px">
+    <div class="modal-title" id="teditor-modal-title">New Template</div>
+    <div class="modal-sub">Templates are reusable email drafts. Variables like <code style="background:#f1f5f9;padding:.1rem .35rem;border-radius:4px;font-size:.82rem">{{name}}</code> are replaced per recipient when sending.</div>
+    <input type="hidden" id="teditor-id"/>
+    <div class="form-group">
+      <label>Template Name <span style="font-weight:400;color:var(--muted)">(admin reference only)</span></label>
+      <input id="teditor-name" placeholder="e.g. Renewal Reminder"/>
+    </div>
+    <div class="form-group">
+      <label>Subject</label>
+      <input id="teditor-subject" placeholder="e.g. Your {{package}} expires in {{daysLeft}} days — DTC"/>
+    </div>
+    <div class="form-group">
+      <label>Body <span style="font-weight:400;color:var(--muted)">— HTML supported</span></label>
+      <div class="teditor-hint">Available variables: <code>{{name}}</code> <code>{{package}}</code> <code>{{product}}</code> <code>{{expiry}}</code> <code>{{daysLeft}}</code> <code>{{email}}</code> <code>{{wechat}}</code></div>
+      <textarea class="compose-textarea html-textarea" id="teditor-body" placeholder="&lt;p&gt;Hi {{name}},&lt;/p&gt;&#10;&lt;p&gt;Your &lt;strong&gt;{{package}}&lt;/strong&gt; subscription expires on &lt;strong&gt;{{expiry}}&lt;/strong&gt;.&lt;/p&gt;"></textarea>
+    </div>
+    <div class="msg err" id="teditor-err"></div>
+    <div class="modal-actions">
+      <button class="btn btn-outline" onclick="BulkEmail.closeTemplateEditor()">Cancel</button>
+      <button class="btn btn-primary" onclick="BulkEmail.saveTemplate()">Save Template</button>
+    </div>
+  </div>
+</div>
+
+<!-- Product Editor Modal -->
+<div class="modal-overlay" id="prod-modal">
+  <div class="modal" style="max-width:640px">
+    <div class="modal-title" id="prod-modal-title">New Product</div>
+    <div class="modal-sub">Configure what customers see and submit when they use this product's activation link.</div>
+    <input type="hidden" id="prod-id"/>
+    <div class="form-row">
+      <div class="form-group"><label>Product Name</label><input id="prod-name" placeholder="e.g. Claude Pro"/></div>
+      <div class="form-group"><label>Type</label>
+        <select id="prod-type">
+          <option value="session">Claude (Org ID)</option>
+          <option value="chatgpt">ChatGPT (Session data)</option>
+          <option value="credentials">Credentials only</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label>Description</label><input id="prod-desc" placeholder="Short description shown in admin"/></div>
+      <div class="form-group" style="display:flex;align-items:flex-end;gap:1rem;padding-bottom:.1rem">
+        <div style="flex:1"><label>Colour</label><input type="color" id="prod-color" value="#2563eb" style="height:2.4rem;padding:.2rem .3rem;cursor:pointer"/></div>
+        <label class="toggle" style="margin-bottom:.35rem"><input type="checkbox" id="prod-active" checked/><div class="toggle-track"><div class="toggle-thumb"></div></div><span style="font-size:.8rem;font-weight:600;margin-left:.4rem">Active</span></label>
+      </div>
+    </div>
+
+    <div style="margin-bottom:.8rem">
+      <label class="toggle"><input type="checkbox" id="prod-creds-mode" onchange="Products._toggleCredsMode()"/><div class="toggle-track"><div class="toggle-thumb"></div></div><span style="font-size:.82rem;font-weight:600;margin-left:.5rem">Credentials Mode</span></label>
+      <div style="font-size:.72rem;color:var(--muted);margin-top:.3rem;padding-left:2.4rem">When enabled, customers only provide WeChat + email. Login details you enter below are shown to them after approval.</div>
+    </div>
+    <div id="creds-details-wrap" style="display:none;margin-bottom:.9rem">
+      <div class="form-group">
+        <label>Login Details <span style="font-weight:400;color:var(--muted)">(shown to customer after approval)</span></label>
+        <textarea id="prod-login-details" rows="4" placeholder="e.g.&#10;Email: shared@example.com&#10;Password: ••••••••&#10;Notes: Log out after each session"></textarea>
+      </div>
+      <div class="form-group" style="margin-bottom:0">
+        <label>Access Link <span style="font-weight:400;color:var(--muted)">(optional — shown as a clickable button to customer)</span></label>
+        <input id="prod-access-link" placeholder="e.g. https://claude.ai or https://chat.openai.com"/>
+      </div>
+    </div>
+
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.6rem">
+      <label style="margin-bottom:0">Packages & Prices</label>
+      <button class="btn btn-outline btn-sm" onclick="Products.addPkgRow()">+ Add Package</button>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 90px 80px 32px;gap:.5rem;margin-bottom:.3rem">
+      <span style="font-size:.63rem;font-weight:600;text-transform:uppercase;letter-spacing:.07em;color:var(--muted)">Label</span>
+      <span style="font-size:.63rem;font-weight:600;text-transform:uppercase;letter-spacing:.07em;color:var(--muted)">Price</span>
+      <span style="font-size:.63rem;font-weight:600;text-transform:uppercase;letter-spacing:.07em;color:var(--muted)">Duration</span>
+      <span></span>
+    </div>
+    <div id="pkg-rows"></div>
+
+    <div class="msg err" id="prod-err"></div>
+    <div class="modal-actions">
+      <button class="btn btn-outline" onclick="Products.closeModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="Products.save()">Save Product</button>
+    </div>
+  </div>
+</div>
+
+<!-- Approve Modal -->
+<div class="modal-overlay" id="approve-modal">
+  <div class="modal" style="max-width:460px">
+    <div class="modal-title">Approve Activation</div>
+    <div class="modal-sub" id="approve-modal-sub">Confirm and optionally set a custom paid price for this customer.</div>
+    <input type="hidden" id="approve-token"/>
+
+    <!-- Customer summary -->
+    <div style="background:#f8fafc;border:1px solid var(--border);border-radius:9px;padding:.9rem 1.1rem;margin-bottom:1.1rem;font-size:.78rem">
+      <div style="display:flex;justify-content:space-between;margin-bottom:.3rem">
+        <span style="color:var(--muted)">Customer</span><strong id="approve-customer">—</strong>
+      </div>
+      <div style="display:flex;justify-content:space-between;margin-bottom:.3rem">
+        <span style="color:var(--muted)">Package</span><span id="approve-package" style="font-family:'JetBrains Mono',monospace;font-size:.72rem">—</span>
+      </div>
+      <div style="display:flex;justify-content:space-between">
+        <span style="color:var(--muted)">List Price</span><strong id="approve-list-price" style="color:var(--success)">—</strong>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label>Custom Paid Price <span style="font-weight:400;color:var(--muted)">— override the charged amount at approval</span></label>
+      <div class="price-input-wrap">
+        <span class="price-currency-icon" id="approve-sym">$</span>
+        <input type="number" id="approve-custom-price" min="0" step="0.01" placeholder="Leave blank to use list price"/>
+      </div>
+      <div style="font-size:.69rem;color:var(--muted);margin-top:.4rem">Use this when the customer paid a negotiated amount different from the package price. This locks in the actual paid amount on their payment record.</div>
+    </div>
+
+    <div class="msg err" id="approve-err"></div>
+    <div class="modal-actions">
+      <button class="btn btn-outline" onclick="Modals.closeApprove()">Cancel</button>
+      <button class="btn btn-primary" onclick="Modals.confirmApprove()" style="background:var(--success);border-color:var(--success)">✓ Approve &amp; Activate</button>
+    </div>
+  </div>
+</div>
+
+<script src="js/utils.js"></script>
+<script src="js/store.js"></script>
+<script src="js/auth.js"></script>
+<script src="js/shell.js"></script>
+<script src="js/dashboard.js"></script>
+<script src="js/customers.js"></script>
+<script src="js/instructions.js"></script>
+<script src="js/email.js"></script>
+<script src="js/modals.js"></script>
+<script src="js/settings.js"></script>
+<script src="js/resellers.js"></script>
+<script src="js/bulk-email.js"></script>
+<script src="js/products.js"></script>
+<script src="js/revenue.js"></script>
+<script src="js/notifications.js"></script>
+
+<script>
+/* ── WebsiteEditor ─────────────────────────────────────────────────────────── */
+const WebsiteEditor = (() => {
+  let _data = {};
+
+  const load = async () => {
+    const d = await fetch('/api/website').then(r=>r.json()).catch(()=>({}));
+    _data = d;
+    _populate();
+  };
+
+  const showTab = (tab, btn) => {
+    document.querySelectorAll('.we-tab').forEach(el => el.style.display = 'none');
+    document.getElementById('we-tab-'+tab).style.display = '';
+    document.querySelectorAll('#we-tabs .fb').forEach(b => b.classList.remove('active'));
+    if(btn) btn.classList.add('active');
+  };
+
+  const _v = (id, fallback='') => {
+    const el = document.getElementById(id);
+    return el ? el.value : fallback;
+  };
+  const _set = (id, val) => {
+    const el = document.getElementById(id);
+    if(el) el.value = val || '';
+  };
+
+  const _populate = () => {
+    const d = _data;
+    const h = d.hero || {}, svc = d.services || {}, how = d.how || {}, why = d.why || {};
+    const rev = d.reviews || {}, faq = d.faq || {}, ct = d.contact || {}, ft = d.footer || {};
+    const pn = d.pushNotification || {};
+
+    // Push notif
+    const en = document.getElementById('we-notif-enabled');
+    if(en) en.checked = !!pn.enabled;
+    _set('we-notif-msg', pn.message);
+    const nt = document.getElementById('we-notif-type');
+    if(nt) nt.value = pn.type || 'info';
+    previewNotif();
+
+    // Hero
+    _set('we-hero-badge', h.badge);
+    _set('we-hero-headline', h.headline);
+    _set('we-hero-highlight', h.headlineHighlight);
+    _set('we-hero-sub', h.subtext);
+    _set('we-hero-cta1', h.ctaPrimary);
+    _set('we-hero-cta2', h.ctaSecondary);
+    _set('we-hero-trust', (h.trustItems||[]).join('\n'));
+    _renderStatRows(h.stats||[]);
+
+    // Contact
+    _set('we-ct-label', ct.sectionLabel);
+    _set('we-ct-wechat', ct.wechatId);
+    _set('we-ct-whatsapp', ct.whatsapp);
+    _set('we-ct-walink', ct.whatsappLink);
+    _set('we-ct-email', ct.email);
+    _set('we-ct-title', ct.title);
+    _set('we-ct-sub', ct.subtitle);
+    _set('we-ct-note', ct.ctaNote);
+
+    // How
+    _set('we-how-label', how.sectionLabel);
+    _set('we-how-title', how.title);
+    _set('we-how-sub', how.subtitle);
+    _renderStepRows(how.steps||[]);
+
+    // Why
+    _set('we-why-label', why.sectionLabel);
+    _set('we-why-title', why.title);
+    _set('we-why-sub', why.subtitle);
+    _renderWhyRows(why.cards||[]);
+
+    // Reviews
+    _set('we-rev-label', rev.sectionLabel);
+    _set('we-rev-title', rev.title);
+    _renderReviewRows(rev.items||[]);
+
+    // FAQ
+    _set('we-faq-label', faq.sectionLabel);
+    _set('we-faq-title', faq.title);
+    _renderFaqRows(faq.items||[]);
+
+    // Footer
+    _set('we-ft-brand', ft.brand);
+    _set('we-ft-copy', ft.copyright);
+    _set('we-ft-links', (ft.links||[]).join('\n'));
+  };
+
+  // ── Stat rows ──────────────────────────────────────────────────────────────
+  const _renderStatRows = (stats) => {
+    const wrap = document.getElementById('we-stats-rows');
+    if(!wrap) return;
+    wrap.innerHTML = '';
+    stats.forEach((s,i) => {
+      wrap.innerHTML += `<div class="form-row" style="margin-bottom:.5rem;align-items:center">
+        <div class="form-group" style="margin-bottom:0"><input placeholder="Value e.g. 500+" value="${esc(s.value||'')}" oninput="WebsiteEditor._statVal(${i},this.value)"/></div>
+        <div class="form-group" style="margin-bottom:0"><input placeholder="Label e.g. Happy Customers" value="${esc(s.label||'')}" oninput="WebsiteEditor._statLabel(${i},this.value)"/></div>
+        <button class="btn btn-outline btn-sm" style="color:var(--error);border-color:var(--error-border);flex-shrink:0" onclick="WebsiteEditor._removeStat(${i})">✕</button>
+      </div>`;
+    });
+  };
+  const _getSavedStats = () => (_data.hero||{}).stats||[];
+  const _statVal   = (i,v) => { const s=_getSavedStats(); if(s[i])s[i].value=v; };
+  const _statLabel = (i,v) => { const s=_getSavedStats(); if(s[i])s[i].label=v; };
+  const _removeStat = (i) => { const s=_getSavedStats(); s.splice(i,1); _renderStatRows(s); };
+  const addStat = () => { const s=_getSavedStats(); s.push({value:'',label:''}); _renderStatRows(s); };
+
+  // ── Step rows ──────────────────────────────────────────────────────────────
+  const _renderStepRows = (steps) => {
+    const wrap = document.getElementById('we-steps-rows');
+    if(!wrap) return;
+    wrap.innerHTML = '';
+    steps.forEach((s,i) => {
+      wrap.innerHTML += `<div style="background:var(--surface2);border:1px solid var(--border);border-radius:9px;padding:.8rem 1rem;margin-bottom:.6rem">
+        <div style="display:flex;align-items:center;gap:.5rem;margin-bottom:.5rem">
+          <span style="font-size:.7rem;font-weight:700;color:var(--blue);font-family:'JetBrains Mono',monospace;background:var(--blue-light);border:1px solid var(--blue-mid);border-radius:5px;padding:.1rem .45rem">0${i+1}</span>
+          <input placeholder="Step title" value="${esc(s.title||'')}" style="flex:1" oninput="WebsiteEditor._stepTitle(${i},this.value)"/>
+          <button class="btn btn-outline btn-sm" style="color:var(--error);border-color:var(--error-border)" onclick="WebsiteEditor._removeStep(${i})">✕</button>
+        </div>
+        <textarea rows="2" placeholder="Step description" style="width:100%;resize:vertical;font-family:'Inter',sans-serif;font-size:.82rem;padding:.45rem .7rem;border:1.5px solid var(--border);border-radius:7px;background:var(--white);color:var(--text);outline:none" oninput="WebsiteEditor._stepText(${i},this.value)">${esc(s.text||'')}</textarea>
+      </div>`;
+    });
+  };
+  const _getSteps = () => ((_data.how||{}).steps||[]);
+  const _stepTitle  = (i,v) => { const s=_getSteps(); if(s[i])s[i].title=v; };
+  const _stepText   = (i,v) => { const s=_getSteps(); if(s[i])s[i].text=v; };
+  const _removeStep = (i) => { const s=_getSteps(); s.splice(i,1); _renderStepRows(s); };
+  const addStep = () => { const s=_getSteps(); s.push({title:'',text:''}); _renderStepRows(s); };
+
+  // ── Why cards ──────────────────────────────────────────────────────────────
+  const _renderWhyRows = (cards) => {
+    const wrap = document.getElementById('we-why-rows');
+    if(!wrap) return;
+    wrap.innerHTML = '';
+    cards.forEach((c,i) => {
+      wrap.innerHTML += `<div style="background:var(--surface2);border:1px solid var(--border);border-radius:9px;padding:.8rem 1rem;margin-bottom:.6rem">
+        <div class="form-row" style="margin-bottom:.4rem;align-items:center">
+          <div class="form-group" style="margin-bottom:0;max-width:80px"><input placeholder="Icon" value="${esc(c.icon||'')}" oninput="WebsiteEditor._whyIcon(${i},this.value)" style="text-align:center;font-size:1.2rem"/></div>
+          <div class="form-group" style="margin-bottom:0;flex:1"><input placeholder="Title" value="${esc(c.title||'')}" oninput="WebsiteEditor._whyTitle(${i},this.value)"/></div>
+          <button class="btn btn-outline btn-sm" style="color:var(--error);border-color:var(--error-border)" onclick="WebsiteEditor._removeWhy(${i})">✕</button>
+        </div>
+        <textarea rows="2" placeholder="Description" style="width:100%;resize:vertical;font-family:'Inter',sans-serif;font-size:.82rem;padding:.45rem .7rem;border:1.5px solid var(--border);border-radius:7px;background:var(--white);color:var(--text);outline:none" oninput="WebsiteEditor._whyText(${i},this.value)">${esc(c.text||'')}</textarea>
+      </div>`;
+    });
+  };
+  const _getWhy = () => ((_data.why||{}).cards||[]);
+  const _whyIcon  = (i,v) => { const c=_getWhy(); if(c[i])c[i].icon=v; };
+  const _whyTitle = (i,v) => { const c=_getWhy(); if(c[i])c[i].title=v; };
+  const _whyText  = (i,v) => { const c=_getWhy(); if(c[i])c[i].text=v; };
+  const _removeWhy = (i) => { const c=_getWhy(); c.splice(i,1); _renderWhyRows(c); };
+  const addWhy = () => { const c=_getWhy(); c.push({icon:'⭐',title:'',text:''}); _renderWhyRows(c); };
+
+  // ── Reviews ────────────────────────────────────────────────────────────────
+  const _renderReviewRows = (items) => {
+    const wrap = document.getElementById('we-review-rows');
+    if(!wrap) return;
+    wrap.innerHTML = '';
+    items.forEach((r,i) => {
+      wrap.innerHTML += `<div style="background:var(--surface2);border:1px solid var(--border);border-radius:9px;padding:.8rem 1rem;margin-bottom:.6rem">
+        <div class="form-row" style="margin-bottom:.4rem">
+          <div class="form-group" style="margin-bottom:0"><input placeholder="Name" value="${esc(r.name||'')}" oninput="WebsiteEditor._revName(${i},this.value)"/></div>
+          <div class="form-group" style="margin-bottom:0"><input placeholder="Role / Location" value="${esc(r.role||'')}" oninput="WebsiteEditor._revRole(${i},this.value)"/></div>
+          <div class="form-group" style="margin-bottom:0;max-width:80px"><input placeholder="Avatar" value="${esc(r.avatar||'')}" oninput="WebsiteEditor._revAv(${i},this.value)"/></div>
+          <button class="btn btn-outline btn-sm" style="color:var(--error);border-color:var(--error-border)" onclick="WebsiteEditor._removeRev(${i})">✕</button>
+        </div>
+        <textarea rows="3" placeholder="Review text" style="width:100%;resize:vertical;font-family:'Inter',sans-serif;font-size:.82rem;padding:.45rem .7rem;border:1.5px solid var(--border);border-radius:7px;background:var(--white);color:var(--text);outline:none" oninput="WebsiteEditor._revText(${i},this.value)">${esc(r.text||'')}</textarea>
+      </div>`;
+    });
+  };
+  const _getRev = () => ((_data.reviews||{}).items||[]);
+  const _revName = (i,v) => { const r=_getRev(); if(r[i])r[i].name=v; };
+  const _revRole = (i,v) => { const r=_getRev(); if(r[i])r[i].role=v; };
+  const _revAv   = (i,v) => { const r=_getRev(); if(r[i])r[i].avatar=v; };
+  const _revText = (i,v) => { const r=_getRev(); if(r[i])r[i].text=v; };
+  const _removeRev = (i) => { const r=_getRev(); r.splice(i,1); _renderReviewRows(r); };
+  const addReview = () => { const r=_getRev(); r.push({stars:5,text:'',name:'',role:'',avatar:''}); _renderReviewRows(r); };
+
+  // ── FAQ ────────────────────────────────────────────────────────────────────
+  const _renderFaqRows = (items) => {
+    const wrap = document.getElementById('we-faq-rows');
+    if(!wrap) return;
+    wrap.innerHTML = '';
+    items.forEach((f,i) => {
+      wrap.innerHTML += `<div style="background:var(--surface2);border:1px solid var(--border);border-radius:9px;padding:.8rem 1rem;margin-bottom:.6rem">
+        <div style="display:flex;align-items:center;gap:.5rem;margin-bottom:.5rem">
+          <input placeholder="Question" value="${esc(f.q||'')}" style="flex:1" oninput="WebsiteEditor._faqQ(${i},this.value)"/>
+          <button class="btn btn-outline btn-sm" style="color:var(--error);border-color:var(--error-border)" onclick="WebsiteEditor._removeFaq(${i})">✕</button>
+        </div>
+        <textarea rows="3" placeholder="Answer" style="width:100%;resize:vertical;font-family:'Inter',sans-serif;font-size:.82rem;padding:.45rem .7rem;border:1.5px solid var(--border);border-radius:7px;background:var(--white);color:var(--text);outline:none" oninput="WebsiteEditor._faqA(${i},this.value)">${esc(f.a||'')}</textarea>
+      </div>`;
+    });
+  };
+  const _getFaq = () => ((_data.faq||{}).items||[]);
+  const _faqQ = (i,v) => { const f=_getFaq(); if(f[i])f[i].q=v; };
+  const _faqA = (i,v) => { const f=_getFaq(); if(f[i])f[i].a=v; };
+  const _removeFaq = (i) => { const f=_getFaq(); f.splice(i,1); _renderFaqRows(f); };
+  const addFaq = () => { const f=_getFaq(); f.push({q:'',a:''}); _renderFaqRows(f); };
+
+  // ── Push notification preview ──────────────────────────────────────────────
+  const previewNotif = () => {
+    const enabled = document.getElementById('we-notif-enabled')?.checked;
+    const msg     = document.getElementById('we-notif-msg')?.value;
+    const type    = document.getElementById('we-notif-type')?.value || 'info';
+    const preview = document.getElementById('we-notif-preview');
+    if(!preview) return;
+    if(enabled && msg) {
+      const colors = {
+        info:    {bg:'rgba(91,156,246,.12)',border:'var(--blue-mid)',color:'var(--blue)'},
+        success: {bg:'rgba(45,212,191,.1)',border:'var(--green-border)',color:'var(--success)'},
+        warning: {bg:'rgba(245,158,11,.1)',border:'#fde68a',color:'var(--warn)'},
+        error:   {bg:'rgba(239,68,68,.1)',border:'var(--error-border)',color:'var(--error)'}
+      };
+      const c = colors[type] || colors.info;
+      preview.style.cssText = `display:block;background:${c.bg};border:1px solid ${c.border};color:${c.color};padding:.65rem 1rem;border-radius:8px;font-size:.82rem;font-weight:500;margin-top:.7rem`;
+      preview.textContent = msg;
+    } else {
+      preview.style.display = 'none';
+    }
+  };
+
+  // ── Save push notification ─────────────────────────────────────────────────
+  const saveNotif = async () => {
+    const d = await api('/admin/website/push-notification', {
+      adminKey: Store.adminKey,
+      enabled:  document.getElementById('we-notif-enabled')?.checked || false,
+      message:  document.getElementById('we-notif-msg')?.value || '',
+      type:     document.getElementById('we-notif-type')?.value || 'info',
+    });
+    const ok = document.getElementById('we-notif-ok');
+    if(d && d.success) { ok.textContent = '✓ Notification saved and live!'; ok.classList.add('show'); setTimeout(()=>ok.classList.remove('show'), 3000); }
+  };
+
+  // ── Collect & save all content ─────────────────────────────────────────────
+  const save = async () => {
+    const errEl = document.getElementById('we-err');
+    const okEl  = document.getElementById('we-ok');
+    errEl.classList.remove('show'); okEl.classList.remove('show');
+
+    const content = {
+      hero: {
+        badge:             _v('we-hero-badge'),
+        headline:          _v('we-hero-headline'),
+        headlineHighlight: _v('we-hero-highlight'),
+        subtext:           _v('we-hero-sub'),
+        ctaPrimary:        _v('we-hero-cta1'),
+        ctaSecondary:      _v('we-hero-cta2'),
+        trustItems:        _v('we-hero-trust').split('\n').map(s=>s.trim()).filter(Boolean),
+        stats:             (_data.hero||{}).stats || [],
+      },
+      services: {
+        sectionLabel: (_data.services||{}).sectionLabel || 'Our Products',
+        title:        (_data.services||{}).title || '',
+        subtitle:     (_data.services||{}).subtitle || '',
+        serviceNote:  (_data.services||{}).serviceNote || '',
+      },
+      how: {
+        sectionLabel: _v('we-how-label'),
+        title:        _v('we-how-title'),
+        subtitle:     _v('we-how-sub'),
+        steps:        (_data.how||{}).steps || [],
+      },
+      why: {
+        sectionLabel: _v('we-why-label'),
+        title:        _v('we-why-title'),
+        subtitle:     _v('we-why-sub'),
+        cards:        (_data.why||{}).cards || [],
+      },
+      reviews: {
+        sectionLabel: _v('we-rev-label'),
+        title:        _v('we-rev-title'),
+        items:        (_data.reviews||{}).items || [],
+      },
+      faq: {
+        sectionLabel: _v('we-faq-label'),
+        title:        _v('we-faq-title'),
+        items:        (_data.faq||{}).items || [],
+      },
+      contact: {
+        sectionLabel: _v('we-ct-label'),
+        title:        _v('we-ct-title'),
+        subtitle:     _v('we-ct-sub'),
+        ctaNote:      _v('we-ct-note'),
+        wechatId:     _v('we-ct-wechat'),
+        whatsapp:     _v('we-ct-whatsapp'),
+        whatsappLink: _v('we-ct-walink'),
+        email:        _v('we-ct-email'),
+      },
+      footer: {
+        brand:     _v('we-ft-brand'),
+        copyright: _v('we-ft-copy'),
+        links:     _v('we-ft-links').split('\n').map(s=>s.trim()).filter(Boolean),
+      },
+    };
+
+    const d = await api('/admin/website/save', { adminKey: Store.adminKey, content });
+    if(d && d.success) {
+      _data = { ..._data, ...content };
+      okEl.textContent = '✓ Website updated and live!';
+      okEl.classList.add('show');
+      setTimeout(()=>okEl.classList.remove('show'), 4000);
+    } else {
+      errEl.textContent = (d && d.error) || 'Save failed.';
+      errEl.classList.add('show');
+    }
+  };
+
+  // Expose dynamic helpers globally so inline oninput handlers work
+  const exposeGlobals = () => {
+    window._we = { _statVal, _statLabel, _removeStat, _stepTitle, _stepText, _removeStep,
+      _whyIcon, _whyTitle, _whyText, _removeWhy, _revName, _revRole, _revAv, _revText, _removeRev,
+      _faqQ, _faqA, _removeFaq };
+  };
+
+  return { load, showTab, save, saveNotif, previewNotif, addStat, addStep, addWhy, addReview, addFaq,
+    _statVal, _statLabel, _removeStat, _stepTitle, _stepText, _removeStep,
+    _whyIcon, _whyTitle, _whyText, _removeWhy, _revName, _revRole, _revAv, _revText, _removeRev,
+    _faqQ, _faqA, _removeFaq };
+})();
+</script>
+
+<script>
+  // ── Bootstrap ──────────────────────────────────────────────────────────────
+  document.addEventListener('DOMContentLoaded', () => {
+    Auth.init();
+    Modals.init();
+    CustomerDropdown.init('cust-name-wrap', 'cust-name');
+
+    // Close-on-overlay for all customer modals
+    const closeMap = {
+      'cust-modal':    () => Customers.closeModal(),
+      'refund-modal':  () => Customers.closeRefund(),
+      'pe-modal':      () => Customers.closePaymentEdit(),
+    };
+    Object.entries(closeMap).forEach(([id, fn]) => {
+      const el = document.getElementById(id);
+      if (el) el.addEventListener('click', e => { if (e.target === el) fn(); });
+    });
+  });
+</script>
+
+<!-- ── Extra Recipients patch for BulkEmail ───────────────────────────────── -->
+<script>
+// Runs after bulk-email.js has loaded and BulkEmail is defined.
+// Patches in the extra recipients state and methods without touching bulk-email.js.
+(function patchBulkEmail() {
+  if (typeof BulkEmail === 'undefined') {
+    // bulk-email.js hasn't loaded yet — wait
+    document.addEventListener('DOMContentLoaded', patchBulkEmail);
+    return;
+  }
+
+  // ── State ────────────────────────────────────────────────────────────────
+  let _extras = []; // [{name, email}]
+
+  // ── Render tag list ───────────────────────────────────────────────────────
+  function renderTags() {
+    const wrap = document.getElementById('extra-tags');
+    if (!wrap) return;
+    if (!_extras.length) { wrap.innerHTML = ''; _updateCount(); return; }
+    wrap.innerHTML = _extras.map((e,i) =>
+      `<span class="extra-tag external" title="${esc(e.email)}">
+        <span>${esc(e.name ? e.name + ' &lt;' + e.email + '&gt;' : e.email)}</span>
+        <button onclick="BulkEmail.removeExtra(${i})" title="Remove">×</button>
+      </span>`
+    ).join('');
+    _updateCount();
+  }
+
+  function esc(s){ const d=document.createElement('div');d.textContent=s||'';return d.innerHTML; }
+
+  function _updateCount() {
+    // Re-trigger BulkEmail.render() if it exists, to recount
+    try { if (typeof BulkEmail.render === 'function') BulkEmail.render(); } catch(e) {}
+  }
+
+  // ── Add single email ──────────────────────────────────────────────────────
+  function addExtra() {
+    const nameEl  = document.getElementById('extra-name');
+    const emailEl = document.getElementById('extra-email');
+    if (!emailEl) return;
+    const email = (emailEl.value||'').trim();
+    const name  = (nameEl  ? nameEl.value.trim() : '') || '';
+    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      emailEl.style.borderColor = 'var(--error)';
+      setTimeout(() => emailEl.style.borderColor = '', 1800);
+      return;
+    }
+    if (_extras.find(e => e.email.toLowerCase() === email.toLowerCase())) {
+      emailEl.value = '';
+      if (nameEl) nameEl.value = '';
+      return;
+    }
+    _extras.push({ name, email });
+    emailEl.value = '';
+    if (nameEl) nameEl.value = '';
+    emailEl.focus();
+    renderTags();
+  }
+
+  function removeExtra(i) {
+    _extras.splice(i, 1);
+    renderTags();
+  }
+
+  // ── CSV / bulk paste import ────────────────────────────────────────────────
+  // Accepts: one per line, or comma/semicolon separated
+  // Formats: email, name <email>, email,name
+  function importExtraCsv() {
+    const raw = prompt('Paste email addresses — one per line, or comma-separated.\n\nFormats supported:\n  email@example.com\n  Name <email@example.com>\n  email@example.com, Display Name');
+    if (!raw) return;
+    let added = 0, skipped = 0;
+    const existing = new Set(_extras.map(e => e.email.toLowerCase()));
+    const lines = raw.split(/[\n;]+/).map(s => s.trim()).filter(Boolean);
+    for (const line of lines) {
+      // Try "Name <email>" format
+      const angled = line.match(/^(.+?)\s*<([^>]+)>\s*$/);
+      if (angled) {
+        const name = angled[1].trim(), email = angled[2].trim();
+        if (/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) && !existing.has(email.toLowerCase())) {
+          _extras.push({ name, email }); existing.add(email.toLowerCase()); added++;
+        } else skipped++;
+        continue;
+      }
+      // Try comma-separated: email,name or email
+      const parts = line.split(',').map(s => s.trim());
+      const email = parts[0], name = parts[1] || '';
+      if (/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) && !existing.has(email.toLowerCase())) {
+        _extras.push({ name, email }); existing.add(email.toLowerCase()); added++;
+      } else skipped++;
+    }
+    renderTags();
+    if (added) alert(`Added ${added} recipient${added!==1?'s':''}${skipped?' ('+skipped+' skipped — invalid or duplicate)':''}.`);
+    else alert('No valid new addresses found.');
+  }
+
+  // ── Expose on BulkEmail ───────────────────────────────────────────────────
+  BulkEmail.addExtra        = addExtra;
+  BulkEmail.removeExtra     = removeExtra;
+  BulkEmail.importExtraCsv  = importExtraCsv;
+  BulkEmail.getExtras       = () => _extras.slice();
+
+  // ── Patch BulkEmail.send to inject extraRecipients ────────────────────────
+  const _origSend = BulkEmail.send;
+  BulkEmail.send = async function() {
+    // Inject extras into the payload by temporarily overriding api()
+    // We monkey-patch the outgoing request for /admin/bulk-email
+    const _origApi = window.api;
+    window.api = async function(url, body) {
+      if (url === '/admin/bulk-email' && body && _extras.length) {
+        body = Object.assign({}, body, { extraRecipients: _extras.slice() });
+      }
+      window.api = _origApi; // restore immediately
+      return _origApi(url, body);
+    };
+    return _origSend.apply(this, arguments);
+  };
+
+  // ── Patch BulkEmail.render to add extra count to badge ────────────────────
+  const _origRender = BulkEmail.render;
+  if (_origRender) {
+    BulkEmail.render = function() {
+      const result = _origRender.apply(this, arguments);
+      // After original render updates the badge, add extras
+      setTimeout(() => {
+        const badge = document.getElementById('recipient-count');
+        if (!badge || !_extras.length) return;
+        const match = badge.textContent.match(/(\d+)/);
+        const base  = match ? parseInt(match[1]) : 0;
+        const filter = (document.getElementById('recipient-filter')||{}).value;
+        if (filter === 'none') {
+          badge.textContent = _extras.length + ' recipient' + (_extras.length!==1?'s':'');
+        } else {
+          badge.textContent = (base + _extras.length) + ' recipient' + ((base+_extras.length)!==1?'s':'');
+        }
+      }, 50);
+      return result;
+    };
+  }
+
+  console.log('[DTC] BulkEmail extra-recipients patch applied');
+})();
+</script>
+
+</body>
+</html>

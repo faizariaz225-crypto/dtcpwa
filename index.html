@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>DTC — Digital Tools Corner | Premium AI Subscriptions</title>
+<meta name="description" content="DTC Digital Tools Corner — your trusted source for Claude Pro, ChatGPT Plus, and premium AI tool subscriptions. Same-day activation. WeChat & WhatsApp support."/>
+
+<!-- PWA -->
+<link rel="manifest" href="/manifest.json"/>
+<meta name="theme-color" content="#2563eb"/>
+<meta name="mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-title" content="DTC"/>
+<link rel="apple-touch-icon" href="/icons/icon.svg"/>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600;9..40,700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#f7f8fc;
+  --surface:#ffffff;
+  --surface2:#f1f4f9;
+  --border:rgba(0,0,0,.08);
+  --border2:rgba(0,0,0,.14);
+  --text:#0f1623;
+  --text2:#374151;
+  --muted:#6b7280;
+  --muted2:#9ca3af;
+  --blue:#2563eb;
+  --blue-dim:#eff6ff;
+  --blue-mid:#bfdbfe;
+  --blue-text:#1d4ed8;
+  --blue-dark:#1e40af;
+  --green:#059669;
+  --green-bg:#ecfdf5;
+  --green-border:#a7f3d0;
+  --green-text:#065f46;
+  --purple:#7c3aed;
+  --purple-bg:#f5f3ff;
+  --purple-border:#ddd6fe;
+  --purple-text:#5b21b6;
+  --sans:'DM Sans',system-ui,sans-serif;
+  --mono:'DM Mono','SF Mono',monospace;
+  --r:10px;--r-lg:16px;--r-xl:22px;
+  --shadow:0 1px 4px rgba(0,0,0,.07),0 1px 2px rgba(0,0,0,.04);
+  --shadow-md:0 4px 20px rgba(0,0,0,.08),0 2px 6px rgba(0,0,0,.04);
+  --shadow-lg:0 10px 40px rgba(0,0,0,.1),0 4px 12px rgba(0,0,0,.05);
+}
+html{scroll-behavior:smooth}
+body{font-family:var(--sans);background:var(--bg);color:var(--text);overflow-x:hidden;-webkit-font-smoothing:antialiased;line-height:1.6}
+
+/* ── Nav ── */
+nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:.9rem 2.5rem;background:rgba(255,255,255,.94);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-bottom:1px solid var(--border)}
+.nav-brand{display:flex;align-items:center;gap:.65rem;text-decoration:none}
+.nav-logo{width:32px;height:32px;background:linear-gradient(135deg,#2563eb,#7c3aed);border-radius:8px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.78rem;color:#fff;font-family:var(--mono);letter-spacing:-.02em}
+.nav-name{font-size:.9rem;font-weight:700;color:var(--text);letter-spacing:-.02em}
+.nav-name em{color:var(--blue);font-style:normal}
+.nav-links{display:flex;align-items:center;gap:.05rem}
+.nav-links a{padding:.38rem .78rem;font-size:.8rem;color:var(--muted);text-decoration:none;border-radius:6px;transition:all .14s;font-weight:500}
+.nav-links a:hover{color:var(--text);background:var(--surface2)}
+.nav-cta{background:var(--blue);color:#fff;padding:.42rem 1.1rem;border-radius:8px;font-size:.8rem;font-weight:600;text-decoration:none;transition:all .17s;box-shadow:0 2px 10px rgba(37,99,235,.28)}
+.nav-cta:hover{background:var(--blue-dark);transform:translateY(-1px);box-shadow:0 4px 16px rgba(37,99,235,.35)}
+.mob-btn{display:none;background:none;border:1px solid var(--border2);color:var(--muted);border-radius:7px;padding:.38rem .65rem;cursor:pointer;font-size:.9rem;font-family:var(--sans);font-weight:500}
+
+/* ── Layout ── */
+.container{max-width:1100px;margin:0 auto;padding:0 1.5rem}
+.sec-label{display:inline-block;font-size:.65rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--blue-text);background:var(--blue-dim);border:1px solid var(--blue-mid);border-radius:99px;padding:.25rem .85rem;margin-bottom:.9rem}
+.sec-title{font-size:clamp(1.6rem,3vw,2.25rem);font-weight:700;letter-spacing:-.035em;line-height:1.18;margin-bottom:.7rem;color:var(--text)}
+.sec-sub{font-size:.93rem;color:var(--muted);line-height:1.8;max-width:560px}
+.tc{text-align:center}.tc .sec-sub{margin:0 auto}
+section{padding:5.5rem 0}
+.alt{background:var(--surface);border-top:1px solid var(--border);border-bottom:1px solid var(--border)}
+
+/* ── Scroll animation ── */
+.reveal{opacity:0;transform:translateY(22px);transition:opacity .55s ease,transform .55s ease}
+.reveal.in{opacity:1;transform:none}
+
+/* ─────────────── HERO ─────────────── */
+#hero{padding:9.5rem 0 0;background:linear-gradient(170deg,#eef4ff 0%,#f3f0ff 40%,var(--bg) 72%);border-bottom:1px solid var(--border);text-align:center}
+.hero-eyebrow{display:inline-flex;align-items:center;gap:.55rem;background:#fff;border:1px solid var(--blue-mid);border-radius:99px;padding:.32rem 1rem;font-size:.73rem;color:var(--blue-text);font-weight:600;margin-bottom:1.8rem;box-shadow:var(--shadow)}
+.pulse{width:7px;height:7px;border-radius:50%;background:var(--blue);animation:blink 2s ease-in-out infinite;flex-shrink:0}
+@keyframes blink{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.35;transform:scale(.7)}}
+h1{font-size:clamp(2.3rem,5.5vw,4rem);font-weight:700;letter-spacing:-.05em;line-height:1.06;margin-bottom:1.15rem;color:var(--text)}
+h1 .grad{background:linear-gradient(135deg,#2563eb 25%,#7c3aed 80%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.hero-sub{font-size:clamp(.92rem,2vw,1.08rem);color:var(--muted);line-height:1.82;max-width:580px;margin:0 auto 2.5rem}
+.ctas{display:flex;align-items:center;justify-content:center;gap:.8rem;flex-wrap:wrap;margin-bottom:2.8rem}
+.btn-primary{background:var(--blue);color:#fff;padding:.75rem 1.85rem;border-radius:10px;font-size:.9rem;font-weight:700;text-decoration:none;display:inline-flex;align-items:center;gap:.5rem;box-shadow:0 4px 16px rgba(37,99,235,.32);transition:all .18s;letter-spacing:-.01em}
+.btn-primary:hover{background:var(--blue-dark);transform:translateY(-2px);box-shadow:0 8px 28px rgba(37,99,235,.38)}
+.btn-ghost{background:#fff;color:var(--text2);padding:.72rem 1.65rem;border-radius:10px;font-size:.9rem;font-weight:600;text-decoration:none;border:1.5px solid var(--border2);display:inline-flex;align-items:center;gap:.5rem;box-shadow:var(--shadow);transition:all .18s}
+.btn-ghost:hover{border-color:var(--blue);color:var(--blue);background:var(--blue-dim)}
+.trust-row{display:flex;justify-content:center;gap:1.6rem;flex-wrap:wrap;font-size:.76rem;color:var(--muted);margin-bottom:4rem}
+.trust-row span{display:flex;align-items:center;gap:.35rem}
+.trust-row span::before{content:'';display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--green);flex-shrink:0}
+
+.stats-strip{background:#fff;border-top:1px solid var(--border);display:grid;grid-template-columns:repeat(4,1fr);text-align:center}
+.stat-cell{padding:1.6rem 1rem;border-right:1px solid var(--border)}
+.stat-cell:last-child{border-right:none}
+.stat-num{font-size:1.8rem;font-weight:700;font-family:var(--mono);color:var(--blue);letter-spacing:-.04em;line-height:1}
+.stat-label{font-size:.67rem;color:var(--muted);margin-top:.3rem;font-weight:500;text-transform:uppercase;letter-spacing:.07em}
+
+/* ─────────────── SERVICES ─────────────── */
+#services .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:1.3rem;margin-top:3rem}
+.product-card{background:#fff;border:1px solid var(--border);border-radius:var(--r-xl);padding:2.2rem;box-shadow:var(--shadow);transition:all .22s}
+.product-card:hover{transform:translateY(-4px);box-shadow:var(--shadow-lg);border-color:var(--border2)}
+.card-tag{display:inline-block;font-size:.65rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;border-radius:6px;padding:.22rem .65rem;margin-bottom:1.1rem}
+.card-tag.claude{background:var(--purple-bg);color:var(--purple-text);border:1px solid var(--purple-border)}
+.card-tag.gpt{background:var(--green-bg);color:var(--green-text);border:1px solid var(--green-border)}
+.card-name{font-size:1.35rem;font-weight:700;letter-spacing:-.03em;margin-bottom:.4rem;color:var(--text)}
+.card-desc{font-size:.84rem;color:var(--muted);line-height:1.72;margin-bottom:1.5rem}
+.feat-list{display:flex;flex-direction:column;gap:.48rem;margin-bottom:1.8rem}
+.feat-row{display:flex;align-items:baseline;gap:.55rem;font-size:.82rem;color:var(--text2)}
+.feat-row::before{content:'';display:inline-block;width:5px;height:5px;border-radius:50%;background:var(--green);flex-shrink:0;margin-top:.32rem}
+.pkg-table{background:var(--surface2);border-radius:var(--r);border:1px solid var(--border);overflow:hidden;margin-bottom:1.8rem}
+.pkg-row{display:flex;justify-content:space-between;align-items:center;padding:.62rem 1rem;border-bottom:1px solid var(--border);font-size:.82rem}
+.pkg-row:last-child{border-bottom:none}
+.pkg-row.best{background:#fff;border-left:3px solid var(--blue)}
+.pkg-row.best .pkg-n{color:var(--text);font-weight:700}
+.pkg-row.best .pkg-p{color:var(--blue-text);font-weight:700;font-size:.88rem}
+.pkg-n{color:var(--muted)}
+.pkg-p{font-family:var(--mono);font-weight:600;color:var(--green-text)}
+.card-btn{display:block;text-align:center;padding:.7rem;border-radius:9px;font-size:.84rem;font-weight:700;text-decoration:none;transition:all .17s;letter-spacing:-.01em}
+.card-btn.claude{background:var(--purple-bg);color:var(--purple-text);border:1.5px solid var(--purple-border)}
+.card-btn.claude:hover{background:#ede9fe}
+.card-btn.gpt{background:var(--green-bg);color:var(--green-text);border:1.5px solid var(--green-border)}
+.card-btn.gpt:hover{background:#d1fae5}
+.note-box{margin-top:1.6rem;background:var(--blue-dim);border:1px solid var(--blue-mid);border-radius:var(--r-lg);padding:1.1rem 1.3rem}
+.note-box p{font-size:.82rem;color:var(--text2);line-height:1.75}
+.note-box strong{color:var(--text)}
+
+/* ─────────────── HOW IT WORKS ─────────────── */
+#how .steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:1.3rem;margin-top:3rem}
+.step-card{padding:1.6rem;background:var(--bg);border:1px solid var(--border);border-radius:var(--r-lg)}
+.step-number{font-size:.72rem;font-weight:700;font-family:var(--mono);color:var(--blue-text);background:var(--blue-dim);border:1px solid var(--blue-mid);border-radius:7px;padding:.22rem .55rem;display:inline-block;margin-bottom:1rem;letter-spacing:.04em}
+.step-card h3{font-size:.96rem;font-weight:700;letter-spacing:-.02em;margin-bottom:.4rem;color:var(--text)}
+.step-card p{font-size:.8rem;color:var(--muted);line-height:1.7}
+
+/* ─────────────── WHY DTC ─────────────── */
+#why .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:1.1rem;margin-top:3rem}
+.why-card{background:#fff;border:1px solid var(--border);border-radius:var(--r-lg);padding:1.5rem;box-shadow:var(--shadow);transition:all .2s}
+.why-card:hover{box-shadow:var(--shadow-md);transform:translateY(-2px)}
+.why-label{font-size:.7rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--blue-text);margin-bottom:.55rem;display:block}
+.why-card h3{font-size:.92rem;font-weight:700;letter-spacing:-.02em;margin-bottom:.35rem;color:var(--text)}
+.why-card p{font-size:.79rem;color:var(--muted);line-height:1.68}
+
+/* ─────────────── REVIEWS ─────────────── */
+#reviews .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1.1rem;margin-top:3rem}
+.review-card{background:#fff;border:1px solid var(--border);border-radius:var(--r-lg);padding:1.6rem;box-shadow:var(--shadow)}
+.stars{font-size:.78rem;letter-spacing:.12em;color:#d97706;margin-bottom:.8rem;font-family:var(--mono)}
+.review-text{font-size:.84rem;color:var(--text2);line-height:1.78;margin-bottom:1.1rem;font-style:italic}
+.reviewer{display:flex;align-items:center;gap:.65rem}
+.avatar{width:34px;height:34px;border-radius:50%;background:var(--blue-dim);border:1.5px solid var(--blue-mid);display:flex;align-items:center;justify-content:center;font-size:.78rem;font-weight:700;color:var(--blue-text);font-family:var(--mono);flex-shrink:0}
+.rev-name{font-size:.8rem;font-weight:700;color:var(--text)}
+.rev-role{font-size:.71rem;color:var(--muted);margin-top:.05rem}
+
+/* ─────────────── FAQ ─────────────── */
+#faq .faq-list{margin-top:3rem;display:flex;flex-direction:column;gap:.55rem;max-width:740px;margin-left:auto;margin-right:auto}
+.faq-item{background:#fff;border:1px solid var(--border);border-radius:var(--r-lg);overflow:hidden;box-shadow:var(--shadow);transition:border-color .18s,box-shadow .18s}
+.faq-item.open{border-color:var(--blue-mid);box-shadow:var(--shadow-md)}
+.faq-q{width:100%;background:none;border:none;color:var(--text);font-family:var(--sans);font-size:.88rem;font-weight:600;padding:1.1rem 1.3rem;text-align:left;cursor:pointer;display:flex;justify-content:space-between;align-items:center;gap:1rem;transition:color .15s;letter-spacing:-.01em}
+.faq-q:hover,.faq-item.open .faq-q{color:var(--blue)}
+.faq-icon{font-size:.72rem;color:var(--muted2);transition:transform .22s;flex-shrink:0;font-family:var(--mono);font-weight:500}
+.faq-item.open .faq-icon{transform:rotate(180deg);color:var(--blue)}
+.faq-answer{font-size:.83rem;color:var(--muted);line-height:1.8;padding:0 1.3rem 1.1rem;display:none}
+.faq-item.open .faq-answer{display:block}
+
+/* ─────────────── CONTACT ─────────────── */
+#contact{padding:5.5rem 0}
+.contact-card{background:#fff;border:1px solid var(--border);border-radius:var(--r-xl);overflow:hidden;box-shadow:var(--shadow-lg)}
+.contact-header{background:linear-gradient(135deg,#eef4ff,#f3f0ff);border-bottom:1px solid var(--border);padding:3rem 2.5rem;text-align:center}
+.contact-header h2{font-size:clamp(1.5rem,3vw,2.1rem);font-weight:700;letter-spacing:-.04em;margin-bottom:.65rem;color:var(--text)}
+.contact-header p{font-size:.88rem;color:var(--muted);line-height:1.78;max-width:500px;margin:0 auto}
+.channels{display:grid;grid-template-columns:repeat(3,1fr)}
+.channel{padding:2rem 1.9rem;border-right:1px solid var(--border);transition:background .17s;display:flex;flex-direction:column;gap:.6rem}
+.channel:last-child{border-right:none}
+.channel:hover{background:var(--surface2)}
+.ch-type{font-size:.63rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.ch-name{font-size:1rem;font-weight:700;color:var(--text);font-family:var(--mono);letter-spacing:-.01em}
+.ch-name a{color:inherit;text-decoration:none;transition:color .15s}
+.ch-name a:hover{color:var(--blue)}
+.ch-desc{font-size:.78rem;color:var(--muted);line-height:1.65}
+.ch-status{display:inline-flex;align-items:center;gap:.35rem;background:var(--green-bg);border:1px solid var(--green-border);border-radius:99px;padding:.18rem .65rem;font-size:.66rem;color:var(--green-text);font-weight:600;width:fit-content}
+.status-dot{width:5px;height:5px;border-radius:50%;background:var(--green);animation:blink 2s infinite;flex-shrink:0}
+
+.bottom-cta{margin-top:1.4rem;text-align:center;padding:2.2rem;background:#fff;border:1px solid var(--border);border-radius:var(--r-xl);box-shadow:var(--shadow)}
+.bottom-cta p{font-size:.87rem;color:var(--muted);margin-bottom:1.1rem;line-height:1.7}
+.bottom-cta .ctas{margin-bottom:0}
+
+/* ─────────────── FOOTER ─────────────── */
+footer{background:#fff;border-top:1px solid var(--border);padding:2rem 1.5rem}
+.footer-inner{max-width:1100px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem}
+.footer-brand{display:flex;align-items:center;gap:.55rem;text-decoration:none}
+.footer-logo{width:26px;height:26px;background:linear-gradient(135deg,#2563eb,#7c3aed);border-radius:6px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.68rem;color:#fff;font-family:var(--mono)}
+.footer-name{font-size:.82rem;font-weight:700;color:var(--text)}
+.footer-links{display:flex;gap:1.3rem;flex-wrap:wrap}
+.footer-links a{font-size:.77rem;color:var(--muted);text-decoration:none;transition:color .14s}
+.footer-links a:hover{color:var(--blue)}
+.footer-copy{font-size:.71rem;color:var(--muted2);width:100%;text-align:center;padding-top:.8rem;border-top:1px solid var(--border);margin-top:.2rem}
+
+/* ─────────────── MOBILE DRAWER ─────────────── */
+.mob-overlay{position:fixed;inset:0;background:rgba(0,0,0,.3);z-index:199;display:none;backdrop-filter:blur(2px)}
+.mob-overlay.open{display:block}
+.mob-drawer{position:fixed;top:0;right:0;bottom:0;width:265px;background:#fff;border-left:1px solid var(--border);z-index:200;padding:1.4rem;transform:translateX(100%);transition:transform .24s ease;display:flex;flex-direction:column;gap:.25rem;box-shadow:var(--shadow-lg)}
+.mob-drawer.open{transform:none}
+.mob-close{background:none;border:1px solid var(--border2);color:var(--muted);border-radius:7px;padding:.35rem .65rem;cursor:pointer;font-size:.85rem;align-self:flex-end;margin-bottom:.5rem;font-family:var(--sans)}
+.mob-drawer a{padding:.7rem .85rem;font-size:.88rem;color:var(--muted);text-decoration:none;border-radius:8px;transition:all .14s;font-weight:500;display:block}
+.mob-drawer a:hover{color:var(--text);background:var(--surface2)}
+.mob-cta{margin-top:.5rem;background:var(--blue);color:#fff !important;font-weight:700 !important;text-align:center;box-shadow:0 2px 10px rgba(37,99,235,.28)}
+
+/* ─────────────── RESPONSIVE ─────────────── */
+@media(max-width:900px){
+  .channels{grid-template-columns:1fr}
+  .channel{border-right:none;border-bottom:1px solid var(--border)}
+  .channel:last-child{border-bottom:none}
+  .contact-header{padding:2.2rem 1.5rem}
+  .footer-inner{justify-content:center;text-align:center}
+  .footer-links{justify-content:center}
+}
+@media(max-width:768px){
+  nav{padding:.8rem 1.2rem}
+  .nav-links{display:none}
+  .mob-btn{display:block}
+  #hero{padding:7.5rem 0 0}
+  .stats-strip{grid-template-columns:repeat(2,1fr)}
+  .stat-cell:nth-child(2){border-right:none}
+  .stat-cell:nth-child(3){border-right:1px solid var(--border)}
+  .stat-cell:nth-child(3),.stat-cell:nth-child(4){border-top:1px solid var(--border)}
+}
+@media(max-width:480px){
+  .stats-strip{grid-template-columns:repeat(2,1fr)}
+  .stat-num{font-size:1.5rem}
+  section{padding:4rem 0}
+}
+</style>
+</head>
+<body>
+
+<!-- Nav -->
+<nav>
+  <a href="#" class="nav-brand">
+    <div class="nav-logo">DTC</div>
+    <span class="nav-name">Digital Tools <em>Corner</em></span>
+  </a>
+  <div class="nav-links">
+    <a href="#services">Services</a>
+    <a href="#how">How It Works</a>
+    <a href="#why">Why DTC</a>
+    <a href="#reviews">Reviews</a>
+    <a href="#faq">FAQ</a>
+    <a href="#contact">Contact</a>
+  </div>
+  <a href="#contact" class="nav-cta">Get Started</a>
+  <button class="mob-btn" onclick="toggleDrawer()">Menu</button>
+</nav>
+
+<div class="mob-overlay" id="mob-overlay" onclick="toggleDrawer()"></div>
+<div class="mob-drawer" id="mob-drawer">
+  <button class="mob-close" onclick="toggleDrawer()">Close</button>
+  <a href="#services" onclick="toggleDrawer()">Services</a>
+  <a href="#how" onclick="toggleDrawer()">How It Works</a>
+  <a href="#why" onclick="toggleDrawer()">Why DTC</a>
+  <a href="#reviews" onclick="toggleDrawer()">Reviews</a>
+  <a href="#faq" onclick="toggleDrawer()">FAQ</a>
+  <a href="#contact" onclick="toggleDrawer()">Contact</a>
+  <a href="#contact" onclick="toggleDrawer()" class="mob-cta">Get Started</a>
+</div>
+
+<!-- Hero -->
+<section id="hero">
+  <div class="container">
+    <div class="hero-eyebrow reveal"><span class="pulse"></span>Trusted by 500+ customers across China</div>
+    <h1 class="reveal">Premium AI Tools,<br/><span class="grad">Activated Today</span></h1>
+    <p class="hero-sub reveal">DTC Digital Tools Corner gets you genuine Claude Pro and ChatGPT Plus subscriptions — same-day activation, flexible plans, and real human support via WeChat and WhatsApp.</p>
+    <div class="ctas reveal">
+      <a href="#contact" class="btn-primary">Contact Us Now</a>
+      <a href="#services" class="btn-ghost">View Pricing</a>
+    </div>
+    <div class="trust-row reveal">
+      <span>Same-day activation</span>
+      <span>Genuine subscriptions</span>
+      <span>WeChat &amp; WhatsApp support</span>
+      <span>Flexible packages</span>
+    </div>
+  </div>
+  <div class="stats-strip reveal">
+    <div class="stat-cell"><div class="stat-num">500+</div><div class="stat-label">Happy Customers</div></div>
+    <div class="stat-cell"><div class="stat-num">&lt;4h</div><div class="stat-label">Avg. Activation</div></div>
+    <div class="stat-cell"><div class="stat-num">2</div><div class="stat-label">Premium Products</div></div>
+    <div class="stat-cell"><div class="stat-num">24/7</div><div class="stat-label">Support</div></div>
+  </div>
+</section>
+
+<!-- Services -->
+<section id="services">
+  <div class="container">
+    <div class="tc reveal">
+      <span class="sec-label">Our Products</span>
+      <h2 class="sec-title">Everything you need to use<br/>the world's best AI</h2>
+      <p class="sec-sub">Genuine access to the leading AI platforms. Pay your way, receive your activation link the same day.</p>
+    </div>
+    <div class="grid">
+      <div class="product-card reveal">
+        <span class="card-tag claude">Claude Pro</span>
+        <div class="card-name">Anthropic Claude Pro</div>
+        <p class="card-desc">The subscription built for demanding work. Claude Opus 4 excels at complex reasoning, nuanced writing, long-form research, and advanced coding — with 5× the usage of the free tier.</p>
+        <div class="feat-list">
+          <div class="feat-row">Claude Opus 4, Sonnet 4 and Haiku 4.5</div>
+          <div class="feat-row">Extended usage limits — 5× more than free</div>
+          <div class="feat-row">Priority access during peak hours</div>
+          <div class="feat-row">Projects — organise and save conversations</div>
+          <div class="feat-row">Advanced file and document analysis</div>
+          <div class="feat-row">Early access to new Anthropic features</div>
+        </div>
+        <div class="pkg-table">
+          <div class="pkg-row"><span class="pkg-n">1 Month</span><span class="pkg-p">¥110</span></div>
+          <div class="pkg-row best"><span class="pkg-n">3 Months — Best Value</span><span class="pkg-p">¥290</span></div>
+          <div class="pkg-row"><span class="pkg-n">6 Months</span><span class="pkg-p">¥540</span></div>
+          <div class="pkg-row"><span class="pkg-n">12 Months</span><span class="pkg-p">¥990</span></div>
+        </div>
+        <a href="#contact" class="card-btn claude">Get Claude Pro</a>
+      </div>
+      <div class="product-card reveal">
+        <span class="card-tag gpt">ChatGPT Plus</span>
+        <div class="card-name">OpenAI ChatGPT Plus</div>
+        <p class="card-desc">The world's most used AI subscription. GPT-4o delivers fast, intelligent conversations. Add DALL·E image generation, real-time web browsing, data analysis, and the full GPT Store.</p>
+        <div class="feat-list">
+          <div class="feat-row">GPT-4o — OpenAI's fastest flagship model</div>
+          <div class="feat-row">DALL·E 3 image generation inside ChatGPT</div>
+          <div class="feat-row">Real-time web browsing and search</div>
+          <div class="feat-row">Advanced data analysis — CSV and PDF uploads</div>
+          <div class="feat-row">Full access to the GPT Store</div>
+          <div class="feat-row">5× higher message limits than free tier</div>
+        </div>
+        <div class="pkg-table">
+          <div class="pkg-row"><span class="pkg-n">1 Month</span><span class="pkg-p">¥150</span></div>
+          <div class="pkg-row best"><span class="pkg-n">3 Months — Best Value</span><span class="pkg-p">¥400</span></div>
+          <div class="pkg-row"><span class="pkg-n">6 Months</span><span class="pkg-p">¥730</span></div>
+          <div class="pkg-row"><span class="pkg-n">12 Months</span><span class="pkg-p">¥1,380</span></div>
+        </div>
+        <a href="#contact" class="card-btn gpt">Get ChatGPT Plus</a>
+      </div>
+    </div>
+    <div class="note-box reveal">
+      <p><strong>How our service works:</strong> After contacting us and completing payment, we send you a personalised activation link. Visit the link, enter your account details, and your subscription is activated — typically within a few hours. Prices shown are indicative; contact us for current rates.</p>
+    </div>
+  </div>
+</section>
+
+<!-- How it works -->
+<div class="alt">
+<section id="how">
+  <div class="container">
+    <div class="tc reveal">
+      <span class="sec-label">Process</span>
+      <h2 class="sec-title">Up and running in four steps</h2>
+      <p class="sec-sub">From first contact to fully activated subscription — usually done in under four hours.</p>
+    </div>
+    <div class="steps">
+      <div class="step-card reveal">
+        <div class="step-number">Step 01</div>
+        <h3>Contact Us</h3>
+        <p>Reach out via WeChat or WhatsApp. Tell us which product and package you want. We reply promptly with pricing and payment details.</p>
+      </div>
+      <div class="step-card reveal">
+        <div class="step-number">Step 02</div>
+        <h3>Make Payment</h3>
+        <p>Pay via WeChat Pay, Alipay, or bank transfer. We confirm receipt and prepare your personalised activation link right away.</p>
+      </div>
+      <div class="step-card reveal">
+        <div class="step-number">Step 03</div>
+        <h3>Receive Your Link</h3>
+        <p>We send a unique, secure activation link via WeChat or email. Click it, enter your account details — we walk you through every step.</p>
+      </div>
+      <div class="step-card reveal">
+        <div class="step-number">Step 04</div>
+        <h3>Enjoy and Renew</h3>
+        <p>Your subscription is live. We send renewal reminders before it expires so you never lose access. Long-term customers get loyalty rates.</p>
+      </div>
+    </div>
+  </div>
+</section>
+</div>
+
+<!-- Why DTC -->
+<section id="why">
+  <div class="container">
+    <div class="tc reveal">
+      <span class="sec-label">Why Choose DTC</span>
+      <h2 class="sec-title">Built to make your<br/>experience effortless</h2>
+      <p class="sec-sub">Hundreds of happy customers and counting — here's what makes DTC different.</p>
+    </div>
+    <div class="grid">
+      <div class="why-card reveal"><span class="why-label">Speed</span><h3>Same-Day Activation</h3><p>Most orders are activated within 2–4 hours of payment confirmation. We don't keep you waiting.</p></div>
+      <div class="why-card reveal"><span class="why-label">Quality</span><h3>Genuine Subscriptions</h3><p>Every subscription is 100% authentic. No shared accounts, no unofficial workarounds, no tricks.</p></div>
+      <div class="why-card reveal"><span class="why-label">Support</span><h3>Real Human Support</h3><p>Reach us on WeChat or WhatsApp. A real person responds — not a bot. We speak Chinese and English.</p></div>
+      <div class="why-card reveal"><span class="why-label">Flexibility</span><h3>Plans for Every Budget</h3><p>Monthly, quarterly, semi-annual, or annual. Choose what suits you. Longer plans save significantly more.</p></div>
+      <div class="why-card reveal"><span class="why-label">Continuity</span><h3>Renewal Reminders</h3><p>We notify you 30 days and again 3–5 days before expiry. You're never caught off guard. Renewing takes five minutes.</p></div>
+      <div class="why-card reveal"><span class="why-label">Convenience</span><h3>Local Payment Methods</h3><p>WeChat Pay, Alipay, or bank transfer. No international credit cards or foreign accounts required.</p></div>
+      <div class="why-card reveal"><span class="why-label">Loyalty</span><h3>Returning Customer Rates</h3><p>Long-term customers qualify for exclusive pricing and priority processing. We value lasting relationships.</p></div>
+      <div class="why-card reveal"><span class="why-label">Transparency</span><h3>Your Account Portal</h3><p>Track your subscription status, expiry date, and account details via your personal activation portal at any time.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- Reviews -->
+<div class="alt">
+<section id="reviews">
+  <div class="container">
+    <div class="tc reveal">
+      <span class="sec-label">Customer Reviews</span>
+      <h2 class="sec-title">What our customers say</h2>
+    </div>
+    <div class="grid">
+      <div class="review-card reveal">
+        <div class="stars">★★★★★</div>
+        <p class="review-text">"Ordered Claude Pro on a Tuesday evening and had it activated by Wednesday morning. The whole process was explained clearly over WeChat. Excellent service — will definitely renew."</p>
+        <div class="reviewer">
+          <div class="avatar">ZW</div>
+          <div><div class="rev-name">Zhang Wei</div><div class="rev-role">Product Manager, Shanghai</div></div>
+        </div>
+      </div>
+      <div class="review-card reveal">
+        <div class="stars">★★★★★</div>
+        <p class="review-text">"Been using DTC for my ChatGPT Plus for eight months now. They always send a reminder before renewal and the process is smooth every single time. I won't go anywhere else."</p>
+        <div class="reviewer">
+          <div class="avatar">LF</div>
+          <div><div class="rev-name">Li Fang</div><div class="rev-role">Freelance Designer, Beijing</div></div>
+        </div>
+      </div>
+      <div class="review-card reveal">
+        <div class="stars">★★★★★</div>
+        <p class="review-text">"I was sceptical at first but everything worked perfectly. Real subscription, fast activation, and when I had a question the support team replied on WhatsApp within minutes."</p>
+        <div class="reviewer">
+          <div class="avatar">CJ</div>
+          <div><div class="rev-name">Chen Jing</div><div class="rev-role">Software Engineer, Shenzhen</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+</div>
+
+<!-- FAQ -->
+<section id="faq">
+  <div class="container">
+    <div class="tc reveal">
+      <span class="sec-label">FAQ</span>
+      <h2 class="sec-title">Common questions</h2>
+    </div>
+    <div class="faq-list">
+      <div class="faq-item reveal"><button class="faq-q" onclick="faq(this)">Are these genuine Claude Pro and ChatGPT Plus subscriptions?<span class="faq-icon">▼</span></button><div class="faq-answer">Yes — every subscription we provide is completely genuine. You receive real access to Claude Pro or ChatGPT Plus on your own account. We don't use shared logins, unofficial workarounds, or any grey-market methods.</div></div>
+      <div class="faq-item reveal"><button class="faq-q" onclick="faq(this)">How long does activation take?<span class="faq-icon">▼</span></button><div class="faq-answer">Most orders are activated within 2–4 hours of payment confirmation. During busy periods it may take a little longer, but we'll keep you updated throughout. We aim to have everything live the same day you order.</div></div>
+      <div class="faq-item reveal"><button class="faq-q" onclick="faq(this)">What payment methods do you accept?<span class="faq-icon">▼</span></button><div class="faq-answer">We accept WeChat Pay, Alipay, and bank transfer via domestic Chinese banks. Contact us if you need a different arrangement — we're flexible and happy to help find a solution.</div></div>
+      <div class="faq-item reveal"><button class="faq-q" onclick="faq(this)">What happens when my subscription is about to expire?<span class="faq-icon">▼</span></button><div class="faq-answer">We send you a renewal reminder around 30 days before expiry and again 3–5 days before. Renewing is quick — just contact us, pay, and we extend your subscription immediately. You never need to worry about losing access unexpectedly.</div></div>
+      <div class="faq-item reveal"><button class="faq-q" onclick="faq(this)">Do you offer refunds?<span class="faq-icon">▼</span></button><div class="faq-answer">If there's a problem with your activation we will fix it immediately or provide a full refund — no questions asked. We stand behind every order. Please contact us as soon as possible if you experience any issues.</div></div>
+      <div class="faq-item reveal"><button class="faq-q" onclick="faq(this)">Can I upgrade from a monthly to an annual plan?<span class="faq-icon">▼</span></button><div class="faq-answer">Yes — contact us any time to upgrade or switch to a different package. Returning customers also qualify for loyalty rates, so committing to a longer plan often works out significantly cheaper.</div></div>
+      <div class="faq-item reveal"><button class="faq-q" onclick="faq(this)">Is my information kept private?<span class="faq-icon">▼</span></button><div class="faq-answer">Absolutely. We only collect the details needed to activate your subscription — typically just your email address and account region. We never share your information with third parties and we don't store sensitive login credentials.</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- Contact -->
+<section id="contact">
+  <div class="container">
+    <div class="contact-card reveal">
+      <div class="contact-header">
+        <span class="sec-label" style="margin-bottom:1rem">Get In Touch</span>
+        <h2>Ready to get started?<br/>We're here to help.</h2>
+        <p style="margin-top:.75rem">Reach out via any channel below. We typically reply within minutes during business hours and within a few hours at all other times.</p>
+      </div>
+      <div class="channels">
+        <div class="channel">
+          <div class="ch-type">WeChat</div>
+          <div class="ch-name">dtc_digitaltools</div>
+          <div class="ch-desc">Search our WeChat ID to add us. Preferred for order inquiries and activation support. We reply in Chinese and English.</div>
+          <span class="ch-status"><span class="status-dot"></span>Fastest response</span>
+        </div>
+        <div class="channel">
+          <div class="ch-type">WhatsApp</div>
+          <div class="ch-name"><a href="https://wa.me/8619738122807">+86 197 3812 2807</a></div>
+          <div class="ch-desc">Send us a message on WhatsApp any time. Ideal if you're outside mainland China or prefer WhatsApp for international contact.</div>
+          <span class="ch-status"><span class="status-dot"></span>Available 24/7</span>
+        </div>
+        <div class="channel">
+          <div class="ch-type">Email</div>
+          <div class="ch-name"><a href="/cdn-cgi/l/email-protection#492d3d2a092d3d2a78673a212639"><span class="__cf_email__" data-cfemail="492d3d2a092d3d2a78673a212639">[email&#160;protected]</span></a></div>
+          <div class="ch-desc">Write to us at <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="bbdfcfd8fbdfcfd88a95c8d3d4cb">[email&#160;protected]</a>. Great for detailed questions, receipts, or when you need a written record of your order.</div>
+          <span class="ch-status"><span class="status-dot" style="animation:none"></span>Reply within 4 hours</span>
+        </div>
+      </div>
+    </div>
+    <div class="bottom-cta reveal">
+      <p>Not sure which plan is right for you? Message us and we'll recommend the best option for your needs and budget — no pressure, no commitment required.</p>
+      <div class="ctas">
+        <a href="https://wa.me/8619738122807" class="btn-primary" target="_blank" rel="noopener">Message on WhatsApp</a>
+        <a href="/cdn-cgi/l/email-protection#6b0f1f082b0f1f085a451803041b" class="btn-ghost">Send an Email</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Footer -->
+<footer>
+  <div class="footer-inner">
+    <a href="#" class="footer-brand">
+      <div class="footer-logo">DTC</div>
+      <span class="footer-name">Digital Tools Corner</span>
+    </a>
+    <div class="footer-links">
+      <a href="#services">Services</a>
+      <a href="#how">How It Works</a>
+      <a href="#why">Why DTC</a>
+      <a href="#reviews">Reviews</a>
+      <a href="#faq">FAQ</a>
+      <a href="#contact">Contact</a>
+      <a href="/cdn-cgi/l/email-protection#9afeeef9dafeeef9abb4e9f2f5ea"><span class="__cf_email__" data-cfemail="6105150221051502504f12090e11">[email&#160;protected]</span></a>
+    </div>
+    <div class="footer-copy">© 2026 DTC Digital Tools Corner &nbsp;·&nbsp; WhatsApp: +86 197 3812 2807 &nbsp;·&nbsp; WeChat: dtc_digitaltools &nbsp;·&nbsp; <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="1f7b6b7c5f7b6b7c2e316c77706f">[email&#160;protected]</a></div>
+  </div>
+</footer>
+
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+function toggleDrawer(){
+  document.getElementById('mob-drawer').classList.toggle('open');
+  document.getElementById('mob-overlay').classList.toggle('open');
+}
+
+function faq(btn){
+  const item = btn.closest('.faq-item');
+  const open = item.classList.contains('open');
+  document.querySelectorAll('.faq-item.open').forEach(el => el.classList.remove('open'));
+  if (!open) item.classList.add('open');
+}
+
+co
